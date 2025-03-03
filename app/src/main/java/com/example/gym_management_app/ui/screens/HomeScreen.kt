@@ -12,9 +12,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +38,7 @@ import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.PaymentViewModel
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -44,84 +51,92 @@ fun HomeScreen(
     // Dans une version réelle, ces valeurs proviendraient de vos ViewModels.
     val activeMembersCount = 120          // Exemple : nombre de membres actifs
     val expiredSubscriptionsCount = 15    // Exemple : nombre d'abonnements expirés
-    val totalPayments = 100000             // Exemple : total des paiements en CFA
+    val totalPayments = 100000 // Exemple : total des paiements en CFA
 
-    var cardgreen by remember { mutableStateOf(Color.Red) }
-    var cardblue by remember { mutableStateOf(Color.Blue) }
-    var cardorange by remember { mutableStateOf(Color.Magenta) }
-
-    // Structure principale de l'écran : une colonne qui occupe tout l'espace et possède un padding.
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween  // Espace entre la section du haut et celle du bas
+    MaterialTheme(
+        colorScheme = lightColorScheme(primary = Color.Blue),
+        //colorScheme = darkColorScheme(primary = Color.Green)
     ) {
-        // SECTION DU HAUT : Message de bienvenue et statistiques
-        Column {
-            // Message de bienvenue centré
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Bienvenue dans Gym-management",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(24.dp))
 
-                // Carte pour le nombre de membres actifs
-                StatisticCard(
-                    title = "Membres Actifs",
-                    color = cardgreen,
-                    value = activeMembersCount.toString()
+        Scaffold(
+            //centrer le texte
+            topBar = {
+                TopAppBar(
+                    title = { Text("Bienvenue dans Gym-management")},
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
+                    )
                 )
-                // Carte pour le nombre d'abonnements expirés
-                StatisticCard(
-                    title = "Abonnements Expirés",
-                    color = cardblue,
-                    value = expiredSubscriptionsCount.toString()
-                )
-                // Carte pour le total des paiements
-                StatisticCard(
-                    title = "Total Paiements",
-                    color = cardorange,
-                    value = "$totalPayments $"
-                )
-        }
+            },
+        ) { paddingValues ->
+            // Structure principale de l'écran : une colonne qui occupe tout l'espace et possède un padding.
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween  // Espace entre la section du haut et celle du bas
+            ) {
+                // SECTION DU HAUT : Message de bienvenue et statistiques
+                Column {
+                    Spacer(modifier = Modifier.height(24.dp))
 
-        // SECTION DU BAS : Boutons de navigation vers les différentes fonctionnalités
-        Column {
-            Button(
-                onClick = { navController.navigate("memberList") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Text("Gestion des Membres")
-            }
-            Button(
-                onClick = { navController.navigate("subscriptionList") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Text("Gestion des Abonnements")
-            }
-            Button(
-                onClick = { navController.navigate("paymentList") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Text("Paiements")
-            }
-            Button(
-                onClick = { navController.navigate("reportScreen") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Text("Rapports")
+                    // Carte pour le nombre de membres actifs
+                    StatisticCard(
+                        title = "Membres Actifs",
+                        color = MaterialTheme.colorScheme.secondary,
+                        value = activeMembersCount.toString()
+                    )
+                    // Carte pour le nombre d'abonnements expirés
+                    StatisticCard(
+                        title = "Abonnements Expirés",
+                        color = MaterialTheme.colorScheme.primary,
+                        value = expiredSubscriptionsCount.toString()
+                    )
+                    // Carte pour le total des paiements
+                    StatisticCard(
+                        title = "Total Paiements",
+                        color = MaterialTheme.colorScheme.tertiary,
+                        value = "$totalPayments $"
+                    )
+                }
+
+                // SECTION DU BAS : Boutons de navigation vers les différentes fonctionnalités
+                Column {
+                    Button(
+                        onClick = { navController.navigate("memberList") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text("Gestion des Membres")
+                    }
+                    Button(
+                        onClick = { navController.navigate("subscriptionList") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text("Gestion des Abonnements")
+                    }
+                    Button(
+                        onClick = { navController.navigate("paymentList") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text("Paiements")
+                    }
+                    Button(
+                        onClick = { navController.navigate("reportScreen") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text("Rapports")
+                    }
+                }
             }
         }
     }
@@ -138,7 +153,7 @@ fun StatisticCard(title: String, color: Color, value: String, modifier: Modifier
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .height(100.dp),
+            .height(60.dp),
         colors = CardDefaults.cardColors(
             containerColor = color, // Couleur de fond de la carte
             contentColor = Color.White  // Couleur du texte ou contenu

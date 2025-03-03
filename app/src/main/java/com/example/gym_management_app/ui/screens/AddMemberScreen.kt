@@ -5,8 +5,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,6 +19,7 @@ import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMemberScreen(
     navController: NavController,
@@ -34,107 +37,125 @@ fun AddMemberScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    MaterialTheme(
+        colorScheme = lightColorScheme(primary = Color.Blue),
+        //colorScheme = darkColorScheme(primary = Color.Green)
     ) {
-        Text(text = "Ajouter un Membre", style = MaterialTheme.typography.headlineSmall)
-
-        // Champ Nom
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nom") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Champ Contact
-        OutlinedTextField(
-            value = contact,
-            onValueChange = { contact = it },
-            label = { Text("Contact") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Sélection d'un abonnement
-        var expanded by remember { mutableStateOf(false) }
-
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedButton(
-                onClick = { expanded = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = selectedSubscription?.type ?: "Sélectionner un abonnement")
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                subscriptions.forEach { subscription ->
-                    DropdownMenuItem(
-                        text = { Text(subscription.type) },
-                        onClick = {
-                            selectedSubscription = subscription
-                            expanded = false
-                        }
+        Scaffold(
+            //centrer le texte
+            topBar = {
+                TopAppBar(
+                    title = { Text("Ajouter un Membre")},
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
                     )
-                }
-            }
-        }
+                )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .padding(paddingValues)
+            ) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+                // Champ Nom
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nom") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+                )
 
-        // Affichage des erreurs avec un Snackbar
-        errorMessage?.let { message ->
-            LaunchedEffect(snackbarHostState) {
-                snackbarHostState.showSnackbar(message)
-            }
-        }
+                Spacer(modifier = Modifier.height(8.dp))
 
-        SnackbarHost(hostState = snackbarHostState)
+                // Champ Contact
+                OutlinedTextField(
+                    value = contact,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() }) { // Vérifie que tous les caractères sont des chiffres
+                            contact = it
+                        }
+                    },
+                    label = { Text("Contact") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number, // Clavier numérique
+                        imeAction = ImeAction.Done
+                    )
+                )
 
-        // Bouton Ajouter
-        Button(
-            onClick = {
-                if (name.isBlank()) {
-                    errorMessage = "Le nom est obligatoire"
-                } else if (contact.isBlank()) {
-                    errorMessage = "Le contact est obligatoire"
-                } else if (selectedSubscription == null) {
-                    errorMessage = "Veuillez sélectionner un abonnement"
-                } else {
-                    coroutineScope.launch {
-                        val newMember = Member(
-                            name = name,
-                            contact = contact,
-                            subscriptionId = selectedSubscription!!.id
-                        )
-                        memberViewModel.addMember(newMember)
-                        navController.popBackStack() // Retour à l’écran précédent
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Sélection d'un abonnement
+                var expanded by remember { mutableStateOf(false) }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = selectedSubscription?.type ?: "Sélectionner un abonnement")
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        subscriptions.forEach { subscription ->
+                            DropdownMenuItem(
+                                text = { Text(subscription.type) },
+                                onClick = {
+                                    selectedSubscription = subscription
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Ajouter Membre")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Affichage des erreurs avec un Snackbar
+                errorMessage?.let { message ->
+                    LaunchedEffect(snackbarHostState) {
+                        snackbarHostState.showSnackbar(message)
+                    }
+                }
+
+                SnackbarHost(hostState = snackbarHostState)
+
+                // Bouton Ajouter
+                Button(
+                    onClick = {
+                        if (name.isBlank()) {
+                            errorMessage = "Le nom est obligatoire"
+                        } else if (contact.isBlank()) {
+                            errorMessage = "Le contact est obligatoire"
+                        } else if (selectedSubscription == null) {
+                            errorMessage = "Veuillez sélectionner un abonnement"
+                        } else {
+                            coroutineScope.launch {
+                                val newMember = Member(
+                                    name = name,
+                                    contact = contact,
+                                    subscriptionId = selectedSubscription!!.id
+                                )
+                                memberViewModel.addMember(newMember)
+                                navController.popBackStack() // Retour à l’écran précédent
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Ajouter Membre")
+                }
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewAddMemberScreen() {
-    AddMemberScreen(
-        navController = TODO(),
-        memberViewModel = TODO(),
-        subscriptionViewModel = TODO()
-    )
-}
+
 
 

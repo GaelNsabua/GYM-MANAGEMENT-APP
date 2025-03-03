@@ -6,16 +6,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,6 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionListScreen(
     navController: NavController,
@@ -39,20 +47,44 @@ fun SubscriptionListScreen(
     // Récupère la liste des abonnements depuis le ViewModel et la convertit en état pour la recomposition
     val subscriptions by subscriptionViewModel.subscriptions.collectAsState()
 
-    Column(modifier = modifier.padding(16.dp)) {
-        // Titre de l'écran
-        Text(text = "Liste des abonnements", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Affiche la liste des abonnements sous forme de LazyColumn (liste défilable)
-        LazyColumn {
-            items(subscriptions) { subscription ->
-                // Pour chaque abonnement, on affiche un item avec un bouton de suppression
-                SubscriptionItem(
-                    subscription = subscription,
-                    // Lorsque le bouton de suppression est cliqué, on appelle la fonction delete du ViewModel
-                    onDelete = { subscriptionViewModel.deleteSubscription(subscription) }
+    MaterialTheme(
+        colorScheme = lightColorScheme(primary = Color.Blue),
+        //colorScheme = darkColorScheme(primary = Color.Green)
+    ) {
+        Scaffold(
+            //centrer le texte
+            topBar = {
+                TopAppBar(
+                    title = { Text("Liste des abonnements")},
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
+                    )
                 )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = { navController.navigate("addSubscription") }) {
+                    Text("+") // Icône simple pour le bouton
+                }
+            }
+        ) { paddingValues ->
+            Column(modifier = modifier
+                    .wrapContentSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Affiche la liste des abonnements sous forme de LazyColumn (liste défilable)
+                LazyColumn {
+                    items(subscriptions) { subscription ->
+                        // Pour chaque abonnement, on affiche un item avec un bouton de suppression
+                        SubscriptionItem(
+                            subscription = subscription,
+                            // Lorsque le bouton de suppression est cliqué, on appelle la fonction delete du ViewModel
+                            onDelete = { subscriptionViewModel.deleteSubscription(subscription) }
+                        )
+                    }
+                }
             }
         }
     }
