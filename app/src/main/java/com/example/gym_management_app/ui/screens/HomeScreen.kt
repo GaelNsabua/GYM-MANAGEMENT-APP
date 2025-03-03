@@ -62,7 +62,7 @@ fun HomeScreen(
             // Message de bienvenue centré
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Bienvenue dans votre application de gestion de salle de sport",
+                text = "Bienvenue dans Gym-management",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
