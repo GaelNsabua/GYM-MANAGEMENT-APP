@@ -20,6 +20,7 @@ import com.example.gym_management_app.ui.screens.AddSubscriptionScreen
 import com.example.gym_management_app.ui.screens.HomeScreen
 import com.example.gym_management_app.ui.screens.MemberListScreen
 import com.example.gym_management_app.ui.screens.PaymentListScreen
+import com.example.gym_management_app.ui.screens.PaymentScreen
 import com.example.gym_management_app.ui.screens.SubscriptionListScreen
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.MemberViewModelFactory
@@ -97,6 +98,17 @@ fun Navigation(){
                 subscriptionViewModel = subscriptionViewModel
             )
         }
+
+        // Écran d'ajout d'un abonnement
+        composable("addPayment") {
+            PaymentScreen(
+                navController = navController,
+                paymentViewModel = paymentViewModel,
+                memberViewModel = memberViewModel,
+                subscriptionViewModel = subscriptionViewModel
+            )
+        }
+
         // Écran des rapports (à implémenter ou remplacer par votre composant)
         composable("reportScreen") {
             //ReportScreen(navController = navController)

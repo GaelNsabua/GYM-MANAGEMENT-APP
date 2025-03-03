@@ -118,7 +118,7 @@ fun SubscriptionItem(
                 // Affiche le nom de l'abonnement
                 Text(text = subscription.type, style = MaterialTheme.typography.bodyLarge)
                 // Affiche le prix de l'abonnement
-                Text(text = "Prix: ${subscription.price} ₯CDF", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Prix: ${subscription.price} $", style = MaterialTheme.typography.bodyMedium)
                 // Affiche la période de validité en convertissant les timestamps en dates lisibles
                 Text(
                     text = "Période: ${formatDate(subscription.startDate)} - ${formatDate(subscription.endDate)}",

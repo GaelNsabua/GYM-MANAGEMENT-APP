@@ -1,19 +1,28 @@
 package com.example.gym_management_app.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,6 +30,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -41,75 +52,133 @@ fun PaymentScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val members by memberViewModel.members.collectAsState(initial = emptyList())
+    val members by memberViewModel.members.collectAsState()
     var selectedMember by remember { mutableStateOf<Member?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val focusRequester = remember { FocusRequester() }
+    var isDropdownExpanded by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(16.dp)) {
-        Text(text = "Effectuer un paiement", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Sélection du membre
-        ExposedDropdownMenuBox(
-            expanded = members.isNotEmpty(),
-            onExpandedChange = {}
-        ) {
-            OutlinedTextField(
-                value = selectedMember?.name ?: "Sélectionner un membre",
-                onValueChange = {},
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            DropdownMenu(expanded = members.isNotEmpty(), onDismissRequest = {}) {
-                members.forEach { member ->
-                    DropdownMenuItem(
-                        text = { Text(member.name) },
-                        onClick = { selectedMember = member }
+    MaterialTheme(
+        colorScheme = lightColorScheme(primary = Color.Blue),
+        //colorScheme = darkColorScheme(primary = Color.Green)
+    ) {
+        Scaffold(
+            //centrer le texte
+            topBar = {
+                TopAppBar(
+                    title = { Text("Effectuer un paiement")},
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
                     )
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = { navController.navigate("addPayment") }) {
+                    Text("+") // Icône simple pour le bouton
                 }
             }
-        }
+        ) { paddingValues ->
+            Column(modifier = modifier
+                .wrapContentSize()
+                .padding(paddingValues)
+                .padding(16.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-        // Affichage automatique du montant
-        // Observer la souscription du membre sélectionné
-        val subscription = selectedMember?.let { member ->
-            subscriptionViewModel.getSubscriptionById(member.subscriptionId).collectAsState(initial = null).value
-        }
+                // Sélection d'un membre
+                var expanded by remember { mutableStateOf(false) }
 
-        // Affichage automatique du montant en fonction de l'abonnement du membre
-        val subscriptionPrice = subscription?.price ?: 0
-
-
-        OutlinedTextField(
-            value = "$subscriptionPrice CFA",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Montant à payer") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (errorMessage != null) {
-            Text(text = errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-        }
-
-        Button(
-            onClick = {
-                if (selectedMember == null) {
-                    errorMessage = "Veuillez sélectionner un membre."
-                } else {
-                    val payment = Payment(
-                        memberId = selectedMember!!.id,
-                        amount = subscriptionPrice as Double,
-                        date = System.currentTimeMillis()
-                    )
-                    paymentViewModel.addPaymentAndUpdateStatus(payment)
-                    Toast.makeText(context, "Paiement enregistré avec succès", Toast.LENGTH_SHORT).show()
-                    navController.popBackStack()
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = selectedMember?.name ?: "Sélectionner un membre")
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        members.forEach { member ->
+                            DropdownMenuItem(
+                                text = { Text(member.name) },
+                                onClick = {
+                                    selectedMember = member
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
                 }
-            },
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
-        ) {
-            Text("Enregistrer le paiement")
+
+                // Sélection du membre
+                /*ExposedDropdownMenuBox(
+                    expanded = isDropdownExpanded,
+                    onExpandedChange = { isDropdownExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = selectedMember?.name ?: "Sélectionner un membre",
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .clickable { isDropdownExpanded = true } // Ouvrir le menu au clic
+                    )
+                    DropdownMenu(
+                        expanded = isDropdownExpanded,
+                        onDismissRequest = { isDropdownExpanded = false }
+                    ) {
+                        members.forEach { member ->
+                            DropdownMenuItem(
+                                text = { Text(member.name) },
+                                onClick = {
+                                    selectedMember = member
+                                    isDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }*/
+
+                // Affichage automatique du montant
+                // Observer la souscription du membre sélectionné
+                val subscription = selectedMember?.let { member ->
+                    subscriptionViewModel.getSubscriptionById(member.subscriptionId).collectAsState(initial = null).value
+                }
+
+                // Affichage automatique du montant en fonction de l'abonnement du membre
+                val subscriptionPrice = subscription?.price ?: 0
+
+
+                OutlinedTextField(
+                    value = "$subscriptionPrice $",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Montant à payer") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (errorMessage != null) {
+                    Text(text = errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                }
+
+                Button(
+                    onClick = {
+                        if (selectedMember == null) {
+                            errorMessage = "Veuillez sélectionner un membre."
+                        } else {
+                            val payment = Payment(
+                                memberId = selectedMember!!.id,
+                                amount = subscriptionPrice as Double,
+                                date = System.currentTimeMillis()
+                            )
+                            paymentViewModel.addPaymentAndUpdateStatus(payment)
+                            Toast.makeText(context, "Paiement enregistré avec succès", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                ) {
+                    Text("Enregistrer le paiement")
+                }
+            }
         }
     }
 }

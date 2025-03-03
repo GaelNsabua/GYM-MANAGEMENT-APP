@@ -83,7 +83,7 @@ fun AddSubscriptionScreen(
                 OutlinedTextField(
                     value = price,
                     onValueChange = { price = it.filter { char -> char.isDigit() } },
-                    label = { Text("Prix (₯CDF)") },
+                    label = { Text("Prix ($)") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )

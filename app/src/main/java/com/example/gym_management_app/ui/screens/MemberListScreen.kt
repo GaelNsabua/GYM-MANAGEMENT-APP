@@ -69,6 +69,7 @@ fun MemberListScreen(
         ) { paddingValues ->
             Column(modifier = modifier
                 .wrapContentSize()
+                .padding(16.dp)
                 .padding(paddingValues)) {
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -104,8 +105,12 @@ fun MemberItem(
                 // Affichage du contact
                 Text(text = "Contact: ${member.contact}", style = MaterialTheme.typography.bodyMedium)
                 // Affichage du statut, basé sur le champ isActive du modèle
-                val statusText = if (member.isActive) "Actif" else "Inactif"
-                Text(text = "Statut: $statusText", style = MaterialTheme.typography.bodySmall)
+                // Affiche l'état de l'abonnement (expiré ou actif)
+                if (!member.isActive) {
+                    Text(text = "Inactif", color = Color.Red, style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    Text(text = "Actif", color = Color.Green, style = MaterialTheme.typography.bodyMedium)
+                }
             }
             // Bouton de suppression positionné en haut à droite de la carte
             IconButton(
