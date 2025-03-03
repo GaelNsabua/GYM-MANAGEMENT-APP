@@ -16,7 +16,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +46,10 @@ fun HomeScreen(
     val expiredSubscriptionsCount = 15    // Exemple : nombre d'abonnements expirés
     val totalPayments = 100000             // Exemple : total des paiements en CFA
 
+    var cardgreen by remember { mutableStateOf(Color.Red) }
+    var cardblue by remember { mutableStateOf(Color.Blue) }
+    var cardorange by remember { mutableStateOf(Color.Magenta) }
+
     // Structure principale de l'écran : une colonne qui occupe tout l'espace et possède un padding.
     Column(
         modifier = modifier
@@ -63,17 +72,20 @@ fun HomeScreen(
                 // Carte pour le nombre de membres actifs
                 StatisticCard(
                     title = "Membres Actifs",
+                    color = cardgreen,
                     value = activeMembersCount.toString()
                 )
                 // Carte pour le nombre d'abonnements expirés
                 StatisticCard(
                     title = "Abonnements Expirés",
+                    color = cardblue,
                     value = expiredSubscriptionsCount.toString()
                 )
                 // Carte pour le total des paiements
                 StatisticCard(
                     title = "Total Paiements",
-                    value = "$totalPayments CFA"
+                    color = cardorange,
+                    value = "$totalPayments $"
                 )
         }
 
@@ -121,12 +133,16 @@ fun HomeScreen(
  * @param value Valeur de la statistique (ex. « 120 »)
  */
 @Composable
-fun StatisticCard(title: String, value: String, modifier: Modifier = Modifier) {
+fun StatisticCard(title: String, color: Color, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .height(100.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color, // Couleur de fond de la carte
+            contentColor = Color.White  // Couleur du texte ou contenu
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         // Disposition en colonne pour centrer le contenu dans la carte
@@ -134,11 +150,10 @@ fun StatisticCard(title: String, value: String, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = value, style = MaterialTheme.typography.bodyLarge)
+            Text(text = title, style = MaterialTheme.typography.titleLarge)
+            Text(text = value, style = MaterialTheme.typography.titleLarge)
         }
     }
 }
