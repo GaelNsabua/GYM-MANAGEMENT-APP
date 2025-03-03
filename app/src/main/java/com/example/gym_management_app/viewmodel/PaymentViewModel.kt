@@ -14,12 +14,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.gym_management_app.data.models.Payment
+import com.example.gym_management_app.data.repository.MemberRepository
 import com.example.gym_management_app.data.repository.PaymentRepository
+import com.example.gym_management_app.data.repository.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() {
+class PaymentViewModel(private val repository: PaymentRepository, private val memberRepository: MemberRepository,
+                       private val subscriptionRepository: SubscriptionRepository
+) : ViewModel() {
 
     // Liste des paiements
     private val _payments = MutableStateFlow<List<Payment>>(emptyList())
@@ -49,6 +53,35 @@ class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() 
     fun deletePayment(payment: Payment) {
         viewModelScope.launch {
             repository.deletePayment(payment)
+        }
+    }
+
+    fun addPaymentAndUpdateStatus(payment: Payment) {
+        viewModelScope.launch {
+            // 1. Insérer le paiement
+            repository.insertPayment(payment)
+
+            // 2. Récupérer le membre associé au paiement
+            val member = memberRepository.getMemberById(payment.memberId)
+            if (member != null) {
+                // 3. Récupérer l'abonnement correspondant au membre
+                // Supposons que nous avons une méthode dans SubscriptionRepository pour récupérer par ID
+                val subscription = subscriptionRepository.getSubscriptionById(member.subscriptionId)
+                if (subscription != null) {
+                    // 4. Calculer la nouvelle date de fin de l'abonnement
+                    // Exemple : ajouter 30 jours (1 mois) au moment actuel si le paiement est pour un renouvellement mensuel
+                    val newEndDate = System.currentTimeMillis() + 30L * 24L * 60L * 60L * 1000L
+
+                    // Créer une copie mise à jour de l'abonnement avec la nouvelle date de fin
+                    val updatedSubscription = subscription.copy(endDate = newEndDate)
+                    subscriptionRepository.updateSubscription(updatedSubscription)
+
+                    // 5. Mettre à jour le statut du membre selon la nouvelle date de fin
+                    // Ici, on considère que le membre devient actif si la nouvelle date est dans le futur
+                    val updatedMember = member.copy(isActive = System.currentTimeMillis() < newEndDate)
+                    memberRepository.updateMember(updatedMember)
+                }
+            }
         }
     }
 }

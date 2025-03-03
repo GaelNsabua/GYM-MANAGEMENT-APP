@@ -24,4 +24,9 @@ class SubscriptionRepository(private val subscriptionDao: SubscriptionDao) {
     suspend fun getSubscriptionById(id: Int): Subscription? {
         return subscriptionDao.getSubscriptionById(id)
     }
+
+    //Met à jour la date de fin d'un abonnement
+    suspend fun updateSubscription(subscription: Subscription) {
+        subscriptionDao.updateSubscription(subscription)
+    }
 }

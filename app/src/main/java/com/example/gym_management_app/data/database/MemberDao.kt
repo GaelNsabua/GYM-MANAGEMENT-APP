@@ -10,7 +10,9 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.gym_management_app.data.models.Member
+import com.example.gym_management_app.data.models.Subscription
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,4 +29,12 @@ interface MemberDao {
     // Récupère tous les membres
     @Query("SELECT * FROM members ORDER BY name ASC")
     fun getAllMembers(): Flow<List<Member>>
+
+    // Rechercher un abonnement par son ID
+    @Query("SELECT * FROM members WHERE id = :id")
+    suspend fun getMemberById(id: Int): Member?
+
+    //Mettre à jour le statut d'un membre
+    @Update
+    suspend fun updateMember(member: Member)
 }

@@ -56,4 +56,17 @@ class SubscriptionViewModel(private val repository: SubscriptionRepository) : Vi
     fun isSubscriptionExpired(subscription: Subscription): Boolean {
         return System.currentTimeMillis() > subscription.endDate
     }
+
+    fun getSubscriptionById(id: Int): StateFlow<Subscription?> {
+        val subscriptionFlow = MutableStateFlow<Subscription?>(null)
+
+        viewModelScope.launch {
+            repository.getSubscriptionById(id)?.let {
+                subscriptionFlow.value = it
+            }
+        }
+
+        return subscriptionFlow
+    }
+
 }

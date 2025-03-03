@@ -10,6 +10,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.gym_management_app.data.models.Subscription
 import kotlinx.coroutines.flow.Flow
 
@@ -31,4 +32,8 @@ interface SubscriptionDao {
     // Rechercher un abonnement par son ID
     @Query("SELECT * FROM subscriptions WHERE id = :id")
     suspend fun getSubscriptionById(id: Int): Subscription?
+
+    //Mettre à jour la date de fin de l'abonnement
+    @Update
+    suspend fun updateSubscription(subscription: Subscription)
 }
