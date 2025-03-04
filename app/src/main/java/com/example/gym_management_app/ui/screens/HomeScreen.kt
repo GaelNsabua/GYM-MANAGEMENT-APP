@@ -1,38 +1,23 @@
 package com.example.gym_management_app.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.PaymentViewModel
@@ -41,137 +26,220 @@ import com.example.gym_management_app.viewmodel.SubscriptionViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    memberViewModel: MemberViewModel,
-    subscriptionViewModel: SubscriptionViewModel,
-    paymentViewModel: PaymentViewModel,
+    navController: NavHostController,
+    memberViewModel: MemberViewModel = viewModel(),
+    subscriptionViewModel: SubscriptionViewModel = viewModel(),
+    paymentViewModel: PaymentViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
-    // Pour l'instant, nous utilisons des données fictives pour les statistiques.
-    // Dans une version réelle, ces valeurs proviendraient de vos ViewModels.
     val activeMembersCount = 120          // Exemple : nombre de membres actifs
     val expiredSubscriptionsCount = 15    // Exemple : nombre d'abonnements expirés
-    val totalPayments = 100000 // Exemple : total des paiements en CFA
+    val totalPayments = 100000             // Exemple : total des paiements en Fc
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(primary = Color.Blue),
-        //colorScheme = darkColorScheme(primary = Color.Green)
-    ) {
-
-        Scaffold(
-            //centrer le texte
-            topBar = {
-                TopAppBar(
-                    title = { Text("Bienvenue dans Gym-management")},
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
-                    )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Tableau de bord", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-            },
-        ) { paddingValues ->
-            // Structure principale de l'écran : une colonne qui occupe tout l'espace et possède un padding.
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween  // Espace entre la section du haut et celle du bas
+            )
+        },
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) {
-                // SECTION DU HAUT : Message de bienvenue et statistiques
-                Column {
-                    Spacer(modifier = Modifier.height(24.dp))
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                    label = { Text("Accueil") },
+                    selected = navController.currentDestination?.route == "home",
+                    onClick = { navController.navigate("home") }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Warning, contentDescription = "Members") },
+                    label = { Text("Membres") },
+                    selected = navController.currentDestination?.route == "memberList",
+                    onClick = { navController.navigate("memberList") }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Warning, contentDescription = "Subscriptions") },
+                    label = { Text("Abonnements") },
+                    selected = navController.currentDestination?.route == "subscriptionList",
+                    onClick = { navController.navigate("subscriptionList") }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Warning, contentDescription = "Payments") },
+                    label = { Text("Paiements") },
+                    selected = navController.currentDestination?.route == "paymentList",
+                    onClick = { navController.navigate("paymentList") }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Warning, contentDescription = "Reports") },
+                    label = { Text("Rapports") },
+                    selected = navController.currentDestination?.route == "reportScreen",
+                    onClick = { navController.navigate("reportScreen") }
+                )
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {navController.navigate("addMember")},
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary) {
+                Icon(Icons.Default.Add, contentDescription = "Ajouter un membre")
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top
+        ) {
+            /* Message de bienvenue
+            Text(
+                text = "Bienvenue dans votre application de gestion de salle de sport",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+*/
+            Spacer(modifier = Modifier.height(24.dp))
 
-                    // Carte pour le nombre de membres actifs
-                    StatisticCard(
-                        title = "Membres Actifs",
-                        color = MaterialTheme.colorScheme.secondary,
-                        value = activeMembersCount.toString()
-                    )
-                    // Carte pour le nombre d'abonnements expirés
-                    StatisticCard(
-                        title = "Abonnements Expirés",
-                        color = MaterialTheme.colorScheme.primary,
-                        value = expiredSubscriptionsCount.toString()
-                    )
-                    // Carte pour le total des paiements
-                    StatisticCard(
-                        title = "Total Paiements",
-                        color = MaterialTheme.colorScheme.tertiary,
-                        value = "$totalPayments $"
-                    )
+            // Section des statistiques
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatisticCard(
+                    title = "Membres Actifs",
+                    value = activeMembersCount.toString(),
+                    icon = Icons.Default.Person,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                StatisticCard(
+                    title = "Abonnements Expirés",
+                    value = expiredSubscriptionsCount.toString(),
+                    icon = Icons.Default.Build,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            StatisticCard(
+                title = "Total Paiements",
+                value = "$totalPayments Fc",
+                icon = Icons.Default.Build,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Column {
+                Button(
+                    onClick = { navController.navigate("memberList") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text("Gestion des Membres")
                 }
-
-                // SECTION DU BAS : Boutons de navigation vers les différentes fonctionnalités
-                Column {
-                    Button(
-                        onClick = { navController.navigate("memberList") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text("Gestion des Membres")
-                    }
-                    Button(
-                        onClick = { navController.navigate("subscriptionList") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text("Gestion des Abonnements")
-                    }
-                    Button(
-                        onClick = { navController.navigate("paymentList") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text("Paiements")
-                    }
-                    Button(
-                        onClick = { navController.navigate("reportScreen") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text("Rapports")
-                    }
+                Button(
+                    onClick = { navController.navigate("subscriptionList") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text("Gestion des Abonnements")
+                }
+                Button(
+                    onClick = { navController.navigate("paymentList") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text("Paiements")
+                }
+                Button(
+                    onClick = { navController.navigate("reportScreen") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text("Rapports")
                 }
             }
+
         }
     }
 }
 
-/**
- * Composable qui affiche une carte de statistique.
- * @param title Titre de la statistique (ex. « Membres Actifs »)
- * @param value Valeur de la statistique (ex. « 120 »)
- */
 @Composable
-fun StatisticCard(title: String, color: Color, value: String, modifier: Modifier = Modifier) {
+fun StatisticCard(
+    title: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
-            .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .height(60.dp),
+            .height(120.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = color, // Couleur de fond de la carte
-            contentColor = Color.White  // Couleur du texte ou contenu
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     ) {
-        // Disposition en colonne pour centrer le contenu dans la carte
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceAround
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
-            Text(text = value, style = MaterialTheme.typography.titleLarge)
+            Icon(icon, contentDescription = title, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+            Text(text = title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+            Text(text = value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }
     }
 }
 
+@Composable
+fun ActionButton(
+    text: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 8.dp,
+            pressedElevation = 4.dp
+        )
+    ) {
+        Icon(icon, contentDescription = text, modifier = Modifier.size(ButtonDefaults.IconSize))
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(text.uppercase(), fontWeight = FontWeight.Bold)
+    }
+}
 
-
+@Composable
+@Preview
+fun HomeScreenPreview() {
+    val navController = rememberNavController()
+    HomeScreen(navController = navController)
+}
