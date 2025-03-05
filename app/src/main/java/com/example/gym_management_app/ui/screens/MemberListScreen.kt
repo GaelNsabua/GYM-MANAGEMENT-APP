@@ -1,6 +1,10 @@
 package com.example.gym_management_app.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,16 +24,20 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -45,11 +53,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.gym_management_app.R
 import com.example.gym_management_app.data.models.Member
 import com.example.gym_management_app.data.models.Subscription
+import com.example.gym_management_app.ui.components.BottomNavBar
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
 
@@ -63,13 +75,19 @@ fun MemberListScreen(
 ) {
     val members by memberViewModel.members.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    var filterStatus by remember { mutableStateOf("Tous") } // Actifs, Expirés, Tous
+    var filterStatus by remember { mutableStateOf("Tous") }
     var sortOption by remember { mutableStateOf("Date d'inscription") }
+
+    val selectedTabIndex = when (filterStatus) {
+        "Actifs" -> 1
+        "Expirés" -> 2
+        else -> 0
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Liste des membres") },
+                title = { Text("Liste des membres", color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
@@ -77,7 +95,7 @@ fun MemberListScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    titleContentColor = Color.White
                 )
             )
         },
@@ -85,7 +103,8 @@ fun MemberListScreen(
             FloatingActionButton(onClick = { navController.navigate("addMember") }) {
                 Text("+")
             }
-        }
+        },
+        bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
     ) { paddingValues ->
         Column(
             modifier = modifier
@@ -93,27 +112,50 @@ fun MemberListScreen(
                 .padding(16.dp)
                 .padding(paddingValues)
         ) {
-            // Barre de recherche
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Rechercher un membre") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Recherche") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Filtres Actifs/Inactifs
+            // Barre de recherche avec bouton de filtre
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                listOf("Tous", "Actifs", "Expirés").forEach { status ->
-                    FilterChip(
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Rechercher un membre") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Recherche") },
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick = { /* Action de filtre ici */ },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Icon(painter = painterResource(id = R.drawable.people), contentDescription = "Filtrer")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Onglets pour filtrer les membres
+            TabRow(
+                selectedTabIndex = when (filterStatus) {
+                    "Actifs" -> 1
+                    "Expirés" -> 2
+                    else -> 0
+                },
+                indicator = { tabPositions ->
+                    Box(
+                        Modifier
+                            .tabIndicatorOffset(tabPositions[selectedTabIndex])
+                            .height(3.dp)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondary)
+                    )
+                }
+            ) {
+                listOf("Tous", "Actifs", "Expirés").forEachIndexed { index, status ->
+                    Tab(
                         selected = filterStatus == status,
                         onClick = { filterStatus = status },
-                        label = { Text(status) }
+                        text = { Text(status) }
                     )
                 }
             }
@@ -163,7 +205,7 @@ fun MemberListScreen(
                     }
                 }
 
-            // Affichage de la liste
+            // Affichage de la liste avec des séparateurs
             LazyColumn {
                 items(filteredAndSortedMembers) { member ->
                     MemberItem(
@@ -172,12 +214,12 @@ fun MemberListScreen(
                         onDelete = { memberViewModel.deleteMember(member) },
                         onClick = { navController.navigate("memberDetail/${member.id}") }
                     )
+                    HorizontalDivider() // Séparateur entre les éléments de la liste
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun MemberItem(
@@ -192,37 +234,33 @@ fun MemberItem(
         subscription = subscriptionViewModel.getSubscriptionForMember(member.subscriptionId)
     }
 
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { onClick() }, // Permet de cliquer sur le membre pour voir les détails
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .clickable { onClick() }
+            .padding(16.dp)
     ) {
-        Box {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Contact: ${member.contact}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Abonnement: ${subscription?.type ?: "Chargement..."}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Date inscription: ${formatDate(member.registrationDate)}", style = MaterialTheme.typography.bodyMedium)
+        Column {
+            Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
+            Text(text = "Contact: ${member.contact}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Abonnement: ${subscription?.type ?: "Chargement..."}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Date inscription: ${formatDate(member.registrationDate)}", style = MaterialTheme.typography.bodyMedium)
 
-                if (subscription != null) {
-                    Text(
-                        text = if (System.currentTimeMillis() > subscription!!.endDate) "Inactif" else "Actif",
-                        color = if (System.currentTimeMillis() > subscription!!.endDate) Color.Red else Color.Green,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+            if (subscription != null) {
+                Text(
+                    text = if (System.currentTimeMillis() > subscription!!.endDate) "Inactif" else "Actif",
+                    color = if (System.currentTimeMillis() > subscription!!.endDate) Color.Red else Color.Green,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
+        }
 
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Icon(Icons.Default.Delete, contentDescription = "Supprimer le membre")
-            }
+        IconButton(
+            onClick = onDelete,
+            modifier = Modifier.align(Alignment.TopEnd)
+        ) {
+            Icon(Icons.Default.Delete, contentDescription = "Supprimer le membre")
         }
     }
 }
-
-

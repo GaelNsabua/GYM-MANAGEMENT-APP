@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_management_app.R
+import com.example.gym_management_app.ui.components.BottomNavBar
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.PaymentViewModel
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
@@ -58,43 +59,7 @@ fun HomeScreen(
                 )
             )
         },
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint) },
-                    label = { Text("Accueil") },
-                    selected = navController.currentDestination?.route == "home",
-                    onClick = { navController.navigate("home") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.people), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint) },
-                    label = { Text("Membres") },
-                    selected = navController.currentDestination?.route == "memberList",
-                    onClick = { navController.navigate("memberList") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.list), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint)},
-                    label = { Text("Abonnements") },
-                    selected = navController.currentDestination?.route == "subscriptionList",
-                    onClick = { navController.navigate("subscriptionList") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.money), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint)},
-                    label = { Text("Paiements") },
-                    selected = navController.currentDestination?.route == "paymentList",
-                    onClick = { navController.navigate("paymentList") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.reports), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint)},
-                    label = { Text("Rapports") },
-                    selected = navController.currentDestination?.route == "reportScreen",
-                    onClick = { navController.navigate("reportScreen") }
-                )
-            }
-        }
+        bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
     ) { innerPadding ->
         Column(
             modifier = modifier

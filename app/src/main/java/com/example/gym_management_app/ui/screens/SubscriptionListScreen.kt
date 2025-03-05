@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.gym_management_app.data.models.Subscription
+import com.example.gym_management_app.ui.components.BottomNavBar
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -60,7 +61,8 @@ fun SubscriptionListScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Ajouter un abonnement")
                 }
-            }
+            },
+            bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
         ) { paddingValues ->
             Column(
                 modifier = modifier
