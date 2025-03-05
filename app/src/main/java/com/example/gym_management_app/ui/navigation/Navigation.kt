@@ -18,6 +18,8 @@ import com.example.gym_management_app.data.repository.SubscriptionRepository
 import com.example.gym_management_app.ui.screens.AddMemberScreen
 import com.example.gym_management_app.ui.screens.AddSubscriptionScreen
 import com.example.gym_management_app.ui.screens.HomeScreen
+import com.example.gym_management_app.ui.screens.LoginScreen
+import com.example.gym_management_app.ui.screens.SplashScreen
 import com.example.gym_management_app.ui.screens.MemberListScreen
 import com.example.gym_management_app.ui.screens.PaymentListScreen
 import com.example.gym_management_app.ui.screens.PaymentScreen
@@ -49,7 +51,15 @@ fun Navigation(){
     // Crée ou récupère le NavController pour gérer la navigation entre les écrans
     val navController = rememberNavController()
     // Définition du NavHost, qui gère le système de navigation et définit l'écran de départ ("home")
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(navController = navController, startDestination = "splash") {
+        // Écran de chargement (splash screen)
+        composable("splash") {
+            SplashScreen(navController = navController)
+        }
+        // Ecran de connexion (login screen)
+        composable("login") {
+            LoginScreen(navController = navController)
+        }
         // Écran d'accueil (tableau de bord)
         composable("home") {
             HomeScreen(
