@@ -22,15 +22,22 @@ import kotlinx.coroutines.launch
 
 class MemberViewModel(private val repository: MemberRepository) : ViewModel() {
 
-    // Stocke la liste des membres
+    // Liste des membres
     private val _members = MutableStateFlow<List<Member>>(emptyList())
     val members: StateFlow<List<Member>> = _members
 
+    // Statistiques sur les membres
+    private val _totalMembers = MutableStateFlow(0)
+    val totalMembers: StateFlow<Int> = _totalMembers
+
+    private val _activeMembers = MutableStateFlow(0)
+    val activeMembers: StateFlow<Int> = _activeMembers
+
     init {
-        loadMembers() // Charge les membres dès l'initialisation
+        loadMembers()
+        loadMemberStatistics()
     }
 
-    // Charge tous les membres
     private fun loadMembers() {
         viewModelScope.launch {
             repository.getAllMembers().collect { memberList ->
@@ -39,22 +46,36 @@ class MemberViewModel(private val repository: MemberRepository) : ViewModel() {
         }
     }
 
-    // Ajoute un membre
-    fun addMember(member: Member) {
+    private fun loadMemberStatistics() {
         viewModelScope.launch {
-            repository.insertMember(member)
+            _totalMembers.value = repository.getTotalMembersCount()
+            _activeMembers.value = repository.getActiveMembersCount()
         }
     }
 
-    //Pour verifier si l'abonnement est déjà pris par un autre membre
+    fun addMember(member: Member) {
+        viewModelScope.launch {
+            repository.insertMember(member)
+            loadMemberStatistics() // Recharger les stats après ajout
+        }
+    }
+
     suspend fun getMemberBySubscriptionId(subscriptionId: Int): Member? {
         return repository.getMemberBySubscriptionId(subscriptionId)
     }
 
-    // Supprime un membre
     fun deleteMember(member: Member) {
         viewModelScope.launch {
             repository.deleteMember(member)
+            loadMemberStatistics() // Recharger les stats après suppression
+        }
+    }
+
+    fun updateMember(member: Member) {
+        viewModelScope.launch {
+            repository.updateMember(member)
+            loadMemberStatistics()
         }
     }
 }
+

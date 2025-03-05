@@ -3,6 +3,8 @@ package com.example.gym_management_app.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -47,6 +49,11 @@ fun AddMemberScreen(
             topBar = {
                 TopAppBar(
                     title = { Text("Ajouter un Membre")},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
                         titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
@@ -148,6 +155,7 @@ fun AddMemberScreen(
                                         name = name,
                                         contact = contact,
                                         subscriptionId = selectedSubscription!!.id,
+                                        registrationDate = System.currentTimeMillis(),
                                         isActive = true
                                     )
                                     memberViewModel.addMember(newMember)

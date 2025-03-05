@@ -6,6 +6,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
@@ -35,51 +37,58 @@ fun HomeScreen(
     paymentViewModel: PaymentViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
-    val activeMembersCount = 120          // Exemple : nombre de membres actifs
-    val expiredSubscriptionsCount = 15    // Exemple : nombre d'abonnements expirés
-    val totalPayments = 100000             // Exemple : total des paiements en Fc
+    // Observer les statistiques depuis les ViewModels en temps réel
+    val totalMembers by memberViewModel.totalMembers.collectAsState()
+    val activeMembersCount by memberViewModel.activeMembers.collectAsState()
+    val expiredSubscriptionsCount by subscriptionViewModel.expiredSubscriptions.collectAsState()
+    val monthlyRevenue by paymentViewModel.monthlyRevenue.collectAsState()
+
+    // Calculer la moyenne d'adhésion en divisant le revenu mensuel par le nombre de membres actifs (si > 0)
+    val averageSubscription = if (activeMembersCount > 0)
+        (monthlyRevenue / activeMembersCount).toInt()
+    else 0.0
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tableau de bord", fontWeight = FontWeight.Bold) },
+                title = { Text("Tableau de bord", fontWeight = FontWeight.Bold, color = Color.White) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White
                 )
             )
         },
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
             ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint) },
                     label = { Text("Accueil") },
                     selected = navController.currentDestination?.route == "home",
                     onClick = { navController.navigate("home") }
                 )
                 NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.people), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = Color.Black) },
+                    icon = { Icon(painter = painterResource(id = R.drawable.people), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint) },
                     label = { Text("Membres") },
                     selected = navController.currentDestination?.route == "memberList",
                     onClick = { navController.navigate("memberList") }
                 )
                 NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.list), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = Color.Black)},
+                    icon = { Icon(painter = painterResource(id = R.drawable.list), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint)},
                     label = { Text("Abonnements") },
                     selected = navController.currentDestination?.route == "subscriptionList",
                     onClick = { navController.navigate("subscriptionList") }
                 )
                 NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.money), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = Color.Black)},
+                    icon = { Icon(painter = painterResource(id = R.drawable.money), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint)},
                     label = { Text("Paiements") },
                     selected = navController.currentDestination?.route == "paymentList",
                     onClick = { navController.navigate("paymentList") }
                 )
                 NavigationBarItem(
-                    icon = { Icon(painter = painterResource(id = R.drawable.reports), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = Color.Black)},
+                    icon = { Icon(painter = painterResource(id = R.drawable.reports), contentDescription = "Rapports", modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.surfaceTint)},
                     label = { Text("Rapports") },
                     selected = navController.currentDestination?.route == "reportScreen",
                     onClick = { navController.navigate("reportScreen") }
@@ -96,29 +105,49 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Section des statistiques
+            // Section des statistiques réparties sur plusieurs lignes
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                StatisticCard(
+                    title = "Total Membres",
+                    value = totalMembers.toString(),
+                    icon = R.drawable.ic_launcher_foreground,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 StatisticCard(
                     title = "Membres Actifs",
                     value = activeMembersCount.toString(),
                     icon = R.drawable.people,
                     modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 StatisticCard(
                     title = "Abonnements Expirés",
                     value = expiredSubscriptionsCount.toString(),
                     icon = R.drawable.warning,
                     modifier = Modifier.weight(1f)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
+                StatisticCard(
+                    title = "Revenus Mensuels",
+                    value = "$monthlyRevenue $",
+                    icon = R.drawable.ic_launcher_foreground,
+                    modifier = Modifier.weight(1f)
+                )
             }
             Spacer(modifier = Modifier.height(8.dp))
             StatisticCard(
-                title = "Total Paiements",
-                value = "$totalPayments Fc",
+
+                title = "Moyenne Adhésion",
+                value = "$averageSubscription %",
                 icon = R.drawable.moneys,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -143,8 +172,8 @@ fun StatisticCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
         Column(
@@ -171,31 +200,6 @@ fun StatisticCard(
     }
 }
 
-@Composable
-fun ActionButton(
-    text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 8.dp,
-            pressedElevation = 4.dp
-        )
-    ) {
-        Icon(icon, contentDescription = text, modifier = Modifier.size(ButtonDefaults.IconSize))
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(text.uppercase(), fontWeight = FontWeight.Bold)
-    }
-}
 
 @Composable
 @Preview

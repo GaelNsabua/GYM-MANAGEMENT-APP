@@ -31,4 +31,7 @@ interface PaymentDao {
     // Rechercher un payement par son ID
     @Query("SELECT * FROM payments WHERE memberId = :memberId")
     fun getPaymentsForMember(memberId: Int): Flow<List<Payment>>
+
+    @Query("SELECT SUM(amount) FROM payments WHERE date BETWEEN :start AND :end")
+    suspend fun getMonthlyRevenue(start: Long, end: Long): Double?
 }

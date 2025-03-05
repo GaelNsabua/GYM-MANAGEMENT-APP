@@ -20,6 +20,10 @@ class PaymentRepository(private val paymentDao: PaymentDao) {
     // Supprime un paiement
     suspend fun deletePayment(payment: Payment) = paymentDao.delete(payment)
 
+    //Revenu mensuel
+    suspend fun getMonthlyRevenue(start: Long, end: Long): Double =
+        paymentDao.getMonthlyRevenue(start, end) ?: 0.0
+
     // Récupère la liste des paiements effectués par un membre
     fun getPaymentsForMember(memberId: Int): Flow<List<Payment>> {
         return paymentDao.getPaymentsForMember(memberId)

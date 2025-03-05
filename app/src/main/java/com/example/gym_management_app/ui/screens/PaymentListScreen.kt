@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -61,6 +62,11 @@ fun PaymentListScreen(
             topBar = {
                 TopAppBar(
                     title = { Text("Liste des paiements")},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
                         titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte

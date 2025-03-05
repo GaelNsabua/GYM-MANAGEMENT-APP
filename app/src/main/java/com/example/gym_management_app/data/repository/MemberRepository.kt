@@ -24,6 +24,11 @@ class MemberRepository(private val memberDao: MemberDao) {
     //Met à jour le statut d'un membre
     suspend fun updateMember(member: Member) = memberDao.updateMember(member)
 
+    // Nouveaux accès aux statistiques
+    suspend fun getTotalMembersCount(): Int = memberDao.getTotalMembersCount()
+
+    suspend fun getActiveMembersCount(): Int = memberDao.getActiveMembersCount()
+
     // Récupère un membre spécifique par son ID
     suspend fun getMemberById(id: Int): Member? {
         return memberDao.getMemberById(id)
