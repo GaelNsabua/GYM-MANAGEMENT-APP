@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -107,35 +106,6 @@ fun PaymentScreen(
                         }
                     }
                 }
-
-                // Sélection du membre
-                /*ExposedDropdownMenuBox(
-                    expanded = isDropdownExpanded,
-                    onExpandedChange = { isDropdownExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = selectedMember?.name ?: "Sélectionner un membre",
-                        onValueChange = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .clickable { isDropdownExpanded = true } // Ouvrir le menu au clic
-                    )
-                    DropdownMenu(
-                        expanded = isDropdownExpanded,
-                        onDismissRequest = { isDropdownExpanded = false }
-                    ) {
-                        members.forEach { member ->
-                            DropdownMenuItem(
-                                text = { Text(member.name) },
-                                onClick = {
-                                    selectedMember = member
-                                    isDropdownExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }*/
 
                 // Affichage automatique du montant
                 // Observer la souscription du membre sélectionné
