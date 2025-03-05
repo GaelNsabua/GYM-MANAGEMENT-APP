@@ -85,15 +85,7 @@ fun HomeScreen(
                     onClick = { navController.navigate("reportScreen") }
                 )
             }
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {navController.navigate("addMember")},
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary) {
-                Icon(Icons.Default.Add, contentDescription = "Ajouter un membre")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End
+        }
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -102,16 +94,6 @@ fun HomeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            /* Message de bienvenue
-            Text(
-                text = "Bienvenue dans votre application de gestion de salle de sport",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-*/
             Spacer(modifier = Modifier.height(24.dp))
 
             // Section des statistiques
@@ -142,41 +124,6 @@ fun HomeScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            Column {
-                Button(
-                    onClick = { navController.navigate("memberList") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Text("Gestion des Membres")
-                }
-                Button(
-                    onClick = { navController.navigate("subscriptionList") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Text("Gestion des Abonnements")
-                }
-                Button(
-                    onClick = { navController.navigate("paymentList") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Text("Paiements")
-                }
-                Button(
-                    onClick = { navController.navigate("reportScreen") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Text("Rapports")
-                }
-            }
 
         }
     }
