@@ -19,6 +19,7 @@ data class Member(
     val name: String,
     val contact: String,
     val subscriptionId: Int, // Référence à l’abonnement (unique)
+    val registrationDate: Long,
     val isActive: Boolean = true
 )
 

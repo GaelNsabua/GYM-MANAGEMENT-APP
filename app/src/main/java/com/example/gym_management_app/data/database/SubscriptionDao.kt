@@ -36,4 +36,7 @@ interface SubscriptionDao {
     //Mettre à jour la date de fin de l'abonnement
     @Update
     suspend fun updateSubscription(subscription: Subscription)
+
+    @Query("SELECT COUNT(*) FROM subscriptions WHERE endDate <= :currentTime")
+    suspend fun getExpiredSubscriptionsCount(currentTime: Long = System.currentTimeMillis()): Int
 }

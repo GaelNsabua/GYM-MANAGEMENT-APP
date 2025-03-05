@@ -70,7 +70,7 @@ fun MemberDetailScreen(
     LaunchedEffect(key1 = member?.subscriptionId) {
         member?.let {
             // Appel de la fonction suspendue dans le SubscriptionViewModel
-            subscription = subscriptionViewModel.getSubscriptionById(it.subscriptionId).value
+            subscription = subscriptionViewModel.getSubscriptionForMember(it.subscriptionId)
         }
     }
 
@@ -96,6 +96,7 @@ fun MemberDetailScreen(
             member?.let { m ->
                 Text(text = "Nom: ${m.name}", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Contact: ${m.contact}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Date inscription: ${formatDate(m.registrationDate)}", style = MaterialTheme.typography.bodyLarge)
 
                 // Si l'abonnement a été chargé, l'afficher
                 subscription?.let { s ->
@@ -147,7 +148,7 @@ fun PaymentItem(payment: Payment) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(text = "Montant: ${payment.amount} ₯CFA", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Montant: ${payment.amount} $", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Date: ${formatsDate(payment.date)}", style = MaterialTheme.typography.bodyLarge)
             }
         }

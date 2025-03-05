@@ -8,7 +8,7 @@ import com.example.gym_management_app.data.models.Member
 import com.example.gym_management_app.data.models.Payment
 import com.example.gym_management_app.data.models.Subscription
 
-@Database(entities = [Member::class, Subscription::class, Payment::class], version = 2)
+@Database(entities = [Member::class, Subscription::class, Payment::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun memberDao(): MemberDao
     abstract fun subscriptionDao(): SubscriptionDao

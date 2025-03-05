@@ -41,4 +41,10 @@ interface MemberDao {
     //Mettre à jour le statut d'un membre
     @Update
     suspend fun updateMember(member: Member)
+
+    @Query("SELECT COUNT(*) FROM members")
+    suspend fun getTotalMembersCount(): Int
+
+    @Query("SELECT COUNT(*) FROM members WHERE isActive = 1")
+    suspend fun getActiveMembersCount(): Int
 }

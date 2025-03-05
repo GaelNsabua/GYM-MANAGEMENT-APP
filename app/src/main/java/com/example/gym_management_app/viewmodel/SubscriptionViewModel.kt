@@ -24,9 +24,13 @@ class SubscriptionViewModel(private val repository: SubscriptionRepository) : Vi
     // Liste des abonnements
     private val _subscriptions = MutableStateFlow<List<Subscription>>(emptyList())
     val subscriptions: StateFlow<List<Subscription>> = _subscriptions
+    // Statistique : nombre d'abonnements expirés
+    private val _expiredSubscriptions = MutableStateFlow(0)
+    val expiredSubscriptions: StateFlow<Int> = _expiredSubscriptions
 
     init {
         loadSubscriptions()
+        loadExpiredSubscriptions()
     }
 
     // Charge tous les abonnements
@@ -38,10 +42,17 @@ class SubscriptionViewModel(private val repository: SubscriptionRepository) : Vi
         }
     }
 
+    private fun loadExpiredSubscriptions() {
+        viewModelScope.launch {
+            _expiredSubscriptions.value = repository.getExpiredSubscriptionsCount()
+        }
+    }
+
     // Ajoute un abonnement
     fun addSubscription(subscription: Subscription) {
         viewModelScope.launch {
             repository.insertSubscription(subscription)
+            loadExpiredSubscriptions()
         }
     }
 
@@ -49,6 +60,7 @@ class SubscriptionViewModel(private val repository: SubscriptionRepository) : Vi
     fun deleteSubscription(subscription: Subscription) {
         viewModelScope.launch {
             repository.deleteSubscription(subscription)
+            loadExpiredSubscriptions()
         }
     }
 
@@ -57,6 +69,12 @@ class SubscriptionViewModel(private val repository: SubscriptionRepository) : Vi
         return System.currentTimeMillis() > subscription.endDate
     }
 
+    // Fonction suspendue qui renvoie directement l'abonnement ou null
+    suspend fun getSubscriptionForMember(id: Int): Subscription? {
+        return repository.getSubscriptionById(id)
+    }
+
+    //Fonction qui renvoie l'abonnement d'un membre spécifique
     fun getSubscriptionById(id: Int): StateFlow<Subscription?> {
         val subscriptionFlow = MutableStateFlow<Subscription?>(null)
 
@@ -65,7 +83,6 @@ class SubscriptionViewModel(private val repository: SubscriptionRepository) : Vi
                 subscriptionFlow.value = it
             }
         }
-
         return subscriptionFlow
     }
 
