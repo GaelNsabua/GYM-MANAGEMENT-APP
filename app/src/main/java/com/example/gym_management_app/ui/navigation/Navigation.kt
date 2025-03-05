@@ -3,6 +3,7 @@ package com.example.gym_management_app.ui.navigation
 
 import android.content.Context
 import android.os.Build
+import android.window.SplashScreen
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
