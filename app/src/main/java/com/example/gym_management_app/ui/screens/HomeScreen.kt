@@ -10,6 +10,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,6 +23,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.gym_management_app.R
+import com.example.gym_management_app.ui.components.BottomNavBar
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.PaymentViewModel
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
@@ -48,60 +52,14 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tableau de bord", fontWeight = FontWeight.Bold) },
+                title = { Text("Tableau de bord", fontWeight = FontWeight.Bold, color = Color.White) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White
                 )
             )
         },
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Accueil") },
-                    selected = navController.currentDestination?.route == "home",
-                    onClick = { navController.navigate("home") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Members") },
-                    label = { Text("Membres") },
-                    selected = navController.currentDestination?.route == "memberList",
-                    onClick = { navController.navigate("memberList") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Subscriptions") },
-                    label = { Text("Abonement") },
-                    selected = navController.currentDestination?.route == "subscriptionList",
-                    onClick = { navController.navigate("subscriptionList") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Build, contentDescription = "Payments") },
-                    label = { Text("Paiements") },
-                    selected = navController.currentDestination?.route == "paymentList",
-                    onClick = { navController.navigate("paymentList") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Reports") },
-                    label = { Text("Rapports") },
-                    selected = navController.currentDestination?.route == "reportScreen",
-                    onClick = { navController.navigate("reportScreen") }
-                )
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("addMember") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Ajouter un membre")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End
+        bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -120,14 +78,14 @@ fun HomeScreen(
                 StatisticCard(
                     title = "Total Membres",
                     value = totalMembers.toString(),
-                    icon = Icons.Default.AccountBox,
+                    icon = R.drawable.ic_launcher_foreground,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StatisticCard(
                     title = "Membres Actifs",
                     value = activeMembersCount.toString(),
-                    icon = Icons.Default.Person,
+                    icon = R.drawable.people,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -139,46 +97,37 @@ fun HomeScreen(
                 StatisticCard(
                     title = "Abonnements Expirés",
                     value = expiredSubscriptionsCount.toString(),
-                    icon = Icons.Default.Warning,
+                    icon = R.drawable.warning,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StatisticCard(
                     title = "Revenus Mensuels",
                     value = "$monthlyRevenue $",
-                    icon = Icons.Default.DateRange,
+                    icon = R.drawable.ic_launcher_foreground,
                     modifier = Modifier.weight(1f)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             StatisticCard(
+
                 title = "Moyenne Adhésion",
                 value = "$averageSubscription %",
-                icon = Icons.Default.Lock   ,
+                icon = R.drawable.moneys,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Boutons de navigation vers les différentes sections (optionnels ici)
-            Column {
-                Button(
-                    onClick = { navController.navigate("paymentList") },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                ) {
-                    Text("Paiements")
-                }
-            }
         }
     }
 }
-
 
 @Composable
 fun StatisticCard(
     title: String,
     value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -188,8 +137,8 @@ fun StatisticCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
         Column(
@@ -199,7 +148,17 @@ fun StatisticCard(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icon, contentDescription = title, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+            Icon(
+
+            painter = painterResource(id = icon),
+
+            contentDescription = title,
+
+            tint = MaterialTheme.colorScheme.primary,
+
+            modifier = Modifier.size(32.dp)
+
+        )
             Text(text = title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
             Text(text = value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }

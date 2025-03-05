@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.gym_management_app.data.models.Payment
+import com.example.gym_management_app.ui.components.BottomNavBar
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.PaymentViewModel
 import java.text.SimpleDateFormat
@@ -77,7 +78,8 @@ fun PaymentListScreen(
                 FloatingActionButton(onClick = { navController.navigate("addPayment") }) {
                     Text("+") // Icône simple pour le bouton
                 }
-            }
+            },
+            bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
         ) { paddingValues ->
             Column(modifier = modifier
                 .wrapContentSize()

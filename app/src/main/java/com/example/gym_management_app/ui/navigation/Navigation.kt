@@ -53,7 +53,7 @@ fun Navigation(){
     // Crée ou récupère le NavController pour gérer la navigation entre les écrans
     val navController = rememberNavController()
     // Définition du NavHost, qui gère le système de navigation et définit l'écran de départ ("home")
-    NavHost(navController = navController, startDestination = "splash") {
+    NavHost(navController = navController, startDestination = "home") {
         // Écran de chargement (splash screen)
         composable("splash") {
             SplashScreen(navController = navController)
