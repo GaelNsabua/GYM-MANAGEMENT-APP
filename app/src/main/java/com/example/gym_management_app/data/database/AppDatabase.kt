@@ -8,7 +8,7 @@ import com.example.gym_management_app.data.models.Member
 import com.example.gym_management_app.data.models.Payment
 import com.example.gym_management_app.data.models.Subscription
 
-@Database(entities = [Member::class, Subscription::class, Payment::class], version = 1)
+@Database(entities = [Member::class, Subscription::class, Payment::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun memberDao(): MemberDao
     abstract fun subscriptionDao(): SubscriptionDao
@@ -24,7 +24,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "gym_management_db"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

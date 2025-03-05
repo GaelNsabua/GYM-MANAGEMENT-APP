@@ -30,6 +30,10 @@ interface MemberDao {
     @Query("SELECT * FROM members ORDER BY name ASC")
     fun getAllMembers(): Flow<List<Member>>
 
+    // Récupérer un membre par subscriptionId
+    @Query("SELECT * FROM members WHERE subscriptionId = :subscriptionId LIMIT 1")
+    suspend fun getMemberBySubscriptionId(subscriptionId: Int): Member?
+
     // Rechercher un abonnement par son ID
     @Query("SELECT * FROM members WHERE id = :id")
     suspend fun getMemberById(id: Int): Member?

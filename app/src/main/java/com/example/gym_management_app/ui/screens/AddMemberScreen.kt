@@ -1,5 +1,6 @@
 package com.example.gym_management_app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -136,14 +137,23 @@ fun AddMemberScreen(
                         } else if (selectedSubscription == null) {
                             errorMessage = "Veuillez sélectionner un abonnement"
                         } else {
+                            // Vérifier si un membre avec ce subscriptionId existe déjà
                             coroutineScope.launch {
-                                val newMember = Member(
-                                    name = name,
-                                    contact = contact,
-                                    subscriptionId = selectedSubscription!!.id
-                                )
-                                memberViewModel.addMember(newMember)
-                                navController.popBackStack() // Retour à l’écran précédent
+                                val existingMember = memberViewModel.getMemberBySubscriptionId(selectedSubscription!!.id)
+                                if (existingMember != null) {
+                                    errorMessage = "Un membre est déjà associé à cet abonnement."
+                                } else {
+                                    // Si non, créer et insérer le nouveau membre
+                                    val newMember = Member(
+                                        name = name,
+                                        contact = contact,
+                                        subscriptionId = selectedSubscription!!.id,
+                                        isActive = true
+                                    )
+                                    memberViewModel.addMember(newMember)
+                                    Toast.makeText(context, "Membre ajouté avec succès", Toast.LENGTH_SHORT).show()
+                                    navController.popBackStack()
+                                }
                             }
                         }
                     },

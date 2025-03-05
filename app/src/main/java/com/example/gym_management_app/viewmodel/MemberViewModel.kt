@@ -46,6 +46,11 @@ class MemberViewModel(private val repository: MemberRepository) : ViewModel() {
         }
     }
 
+    //Pour verifier si l'abonnement est déjà pris par un autre membre
+    suspend fun getMemberBySubscriptionId(subscriptionId: Int): Member? {
+        return repository.getMemberBySubscriptionId(subscriptionId)
+    }
+
     // Supprime un membre
     fun deleteMember(member: Member) {
         viewModelScope.launch {

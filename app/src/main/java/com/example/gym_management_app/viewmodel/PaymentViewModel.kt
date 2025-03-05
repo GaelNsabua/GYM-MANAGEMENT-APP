@@ -17,6 +17,7 @@ import com.example.gym_management_app.data.models.Payment
 import com.example.gym_management_app.data.repository.MemberRepository
 import com.example.gym_management_app.data.repository.PaymentRepository
 import com.example.gym_management_app.data.repository.SubscriptionRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -40,6 +41,11 @@ class PaymentViewModel(private val repository: PaymentRepository, private val me
                 _payments.value = paymentList
             }
         }
+    }
+
+    // Fonction pour obtenir la liste des paiements d'un membre spécifique
+    fun getPaymentsForMember(memberId: Int): Flow<List<Payment>> {
+        return repository.getPaymentsForMember(memberId)
     }
 
     // Ajoute un paiement
@@ -70,7 +76,7 @@ class PaymentViewModel(private val repository: PaymentRepository, private val me
                 if (subscription != null) {
                     // 4. Calculer la nouvelle date de fin de l'abonnement
                     // Exemple : ajouter 30 jours (1 mois) au moment actuel si le paiement est pour un renouvellement mensuel
-                    val newEndDate = System.currentTimeMillis() + 30L * 24L * 60L * 60L * 1000L
+                    val newEndDate = subscription.endDate + 30L * 24L * 60L * 60L * 1000L
 
                     // Créer une copie mise à jour de l'abonnement avec la nouvelle date de fin
                     val updatedSubscription = subscription.copy(endDate = newEndDate)

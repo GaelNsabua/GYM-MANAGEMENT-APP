@@ -24,9 +24,14 @@ class MemberRepository(private val memberDao: MemberDao) {
     //Met à jour le statut d'un membre
     suspend fun updateMember(member: Member) = memberDao.updateMember(member)
 
-    // Récupère un abonnement spécifique par son ID
+    // Récupère un membre spécifique par son ID
     suspend fun getMemberById(id: Int): Member? {
         return memberDao.getMemberById(id)
+    }
+
+    // Fonction pour vérifier l'unicité de subscriptionId
+    suspend fun getMemberBySubscriptionId(subscriptionId: Int): Member? {
+        return memberDao.getMemberBySubscriptionId(subscriptionId)
     }
 
 }

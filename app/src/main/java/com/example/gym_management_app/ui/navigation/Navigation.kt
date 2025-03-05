@@ -20,6 +20,7 @@ import com.example.gym_management_app.ui.screens.AddMemberScreen
 import com.example.gym_management_app.ui.screens.AddSubscriptionScreen
 import com.example.gym_management_app.ui.screens.HomeScreen
 import com.example.gym_management_app.ui.screens.LoginScreen
+import com.example.gym_management_app.ui.screens.MemberDetailScreen
 import com.example.gym_management_app.ui.screens.SplashScreen
 import com.example.gym_management_app.ui.screens.MemberListScreen
 import com.example.gym_management_app.ui.screens.PaymentListScreen
@@ -74,7 +75,8 @@ fun Navigation(){
         composable("memberList") {
             MemberListScreen(
                 navController = navController,
-                memberViewModel = memberViewModel
+                memberViewModel = memberViewModel,
+                subscriptionViewModel = subscriptionViewModel
             )
         }
         // Écran de la liste des abonnements
@@ -90,6 +92,21 @@ fun Navigation(){
                 navController = navController,
                 paymentViewModel = paymentViewModel,
                 memberViewModel = memberViewModel
+            )
+        }
+
+        // Route pour l'écran de détail d'un membre
+        composable("memberDetail/{memberId}") { backStackEntry ->
+            // Extraction du paramètre memberId depuis l'argument de la route
+            val memberId = backStackEntry.arguments?.getString("memberId")?.toIntOrNull() ?: 0
+
+            // Affichage de l'écran de détail en passant les ViewModels nécessaires
+            MemberDetailScreen(
+                navController = navController,
+                memberId = memberId,
+                memberViewModel = memberViewModel,
+                subscriptionViewModel = subscriptionViewModel,
+                paymentViewModel = paymentViewModel
             )
         }
 
