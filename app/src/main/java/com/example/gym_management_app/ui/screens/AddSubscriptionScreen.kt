@@ -45,32 +45,31 @@ fun AddSubscriptionScreen(
     // Mutable states for user inputs
     var name by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     MaterialTheme(
         colorScheme = lightColorScheme(primary = Color.Blue),
-        //colorScheme = darkColorScheme(primary = Color.Green)
     ) {
         Scaffold(
-            //centrer le texte
             topBar = {
                 TopAppBar(
-                    title = { Text("Ajouter un abonnement")},
+                    title = { Text("Ajouter un abonnement") },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
             },
         ) { paddingValues ->
-            Column(modifier = modifier
+            Column(
+                modifier = modifier
                     .wrapContentSize()
                     .padding(paddingValues)
-                    .padding(16.dp)) {
+                    .padding(16.dp)
+            ) {
 
                 Spacer(modifier = Modifier.height(16.dp))
+
                 // Input field for subscription name
                 OutlinedTextField(
                     value = name,
@@ -79,28 +78,12 @@ fun AddSubscriptionScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Input field for subscription price, allowing only digits
+                // Input field for subscription price
                 OutlinedTextField(
                     value = price,
                     onValueChange = { price = it.filter { char -> char.isDigit() } },
                     label = { Text("Prix ($)") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Input field for subscription start date
-                OutlinedTextField(
-                    value = startDate,
-                    onValueChange = { startDate = it },
-                    label = { Text("Date de début (YYYY-MM-DD)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Input field for subscription end date
-                OutlinedTextField(
-                    value = endDate,
-                    onValueChange = { endDate = it },
-                    label = { Text("Date de fin (YYYY-MM-DD)") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -113,21 +96,22 @@ fun AddSubscriptionScreen(
                 Button(
                     onClick = {
                         val priceValue = price.toIntOrNull()
-                        val startMillis = parseDate(startDate)
-                        val endMillis = parseDate(endDate)
+                        val startMillis = System.currentTimeMillis() // Date actuelle
+                        val endMillis = startMillis + (7L * 24L * 60L * 60L * 1000L) // +30 jours
 
-                        // Validation checks before adding the subscription
+                        // Validation checks
                         if (name.isBlank()) {
                             errorMessage = "Le nom de l'abonnement ne peut pas être vide."
                         } else if (priceValue == null || priceValue <= 0) {
                             errorMessage = "Le prix doit être un nombre positif."
-                        } else if (startMillis == null) {
-                            errorMessage = "Date de début invalide."
-                        } else if (endMillis == null || endMillis <= startMillis) {
-                            errorMessage = "Date de fin invalide ou antérieure à la date de début."
                         } else {
                             // Create and add a new subscription
-                            val subscription = Subscription(type = name, price = priceValue.toDouble(), startDate = startMillis, endDate = endMillis)
+                            val subscription = Subscription(
+                                type = name,
+                                price = priceValue.toDouble(),
+                                startDate = startMillis,
+                                endDate = endMillis
+                            )
                             subscriptionViewModel.addSubscription(subscription)
 
                             // Show confirmation message
@@ -146,17 +130,5 @@ fun AddSubscriptionScreen(
     }
 }
 
-/**
- * Parses a date string (YYYY-MM-DD) into a timestamp (Long).
- * Returns null if the date is invalid.
- */
-fun parseDate(date: String): Long? {
-    return try {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        formatter.parse(date)?.time
-    } catch (e: Exception) {
-        null
-    }
-}
 
 

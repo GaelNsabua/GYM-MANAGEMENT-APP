@@ -114,7 +114,7 @@ fun PaymentItem(
         Box {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Affiche le montant du paiement
-                Text(text = "Montant: ${payment.amount} ₯CDF", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Montant: ${payment.amount} $", style = MaterialTheme.typography.bodyLarge)
                 // Affiche la date du paiement au format lisible
                 Text(text = "Date: ${formatDates(payment.date)}", style = MaterialTheme.typography.bodyMedium)
                 // Affiche le nom du membre associé au paiement (plutôt que l'ID)
