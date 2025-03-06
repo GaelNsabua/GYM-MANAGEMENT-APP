@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -30,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -54,20 +57,11 @@ fun PaymentListScreen(
     // Collecte la liste des membres depuis le MemberViewModel
     val members by memberViewModel.members.collectAsState()
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(primary = Color.Blue),
-        //colorScheme = darkColorScheme(primary = Color.Green)
-    ) {
         Scaffold(
             //centrer le texte
             topBar = {
                 TopAppBar(
-                    title = { Text("Liste des paiements")},
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
-                        }
-                    },
+                    title = { Text("Liste des paiements", fontWeight = FontWeight.Bold, color = Color.White)},
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
                         titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
@@ -75,8 +69,10 @@ fun PaymentListScreen(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = { navController.navigate("addPayment") }) {
-                    Text("+") // Icône simple pour le bouton
+                FloatingActionButton(onClick = { navController.navigate("addPayment") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,) {
+                    Icon(Icons.Default.Add, contentDescription = "Ajouter un abonnement", tint = Color.White)
                 }
             },
             bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
@@ -102,7 +98,6 @@ fun PaymentListScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

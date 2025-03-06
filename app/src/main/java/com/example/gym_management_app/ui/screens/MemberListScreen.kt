@@ -14,10 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
@@ -35,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -55,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -87,12 +93,7 @@ fun MemberListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Liste des membres", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
-                    }
-                },
+                title = { Text("Liste des membres", fontWeight = FontWeight.Bold, color = Color.White) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
@@ -100,8 +101,10 @@ fun MemberListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("addMember") }) {
-                Text("+")
+            FloatingActionButton(onClick = { navController.navigate("addMember") },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary) {
+                Icon(Icons.Default.Add, contentDescription = "Ajouter un membre", tint = Color.White)
             }
         },
         bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
@@ -114,22 +117,51 @@ fun MemberListScreen(
         ) {
             // Barre de recherche avec bouton de filtre
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                var expanded by remember { mutableStateOf(false) }
+                Box {
+                    IconButton(
+                        onClick = { expanded = true },
+                        // Taille de l'icône pour un bon visuel
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.filter),
+                            contentDescription = "Filtrer",
+                            modifier = Modifier.size(40.dp) // Taille de l'icône
+                        )
+                    }
+
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        listOf("Date d'inscription", "Dernier paiement").forEach { option ->
+                            DropdownMenuItem(text = { Text(option) }, onClick = {
+                                sortOption = option
+                                expanded = false
+                            })
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp)) // Ajoute un espace entre la barre de recherche et l'icône
+
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     label = { Text("Rechercher un membre") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Recherche") },
-                    modifier = Modifier.weight(1f)
+                    trailingIcon = { Icon(Icons.Default.Search, contentDescription = "Recherche") },
+                    modifier = Modifier
+                        .weight(1f),
+                    maxLines = 1,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-                IconButton(
-                    onClick = { /* Action de filtre ici */ },
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Icon(painter = painterResource(id = R.drawable.people), contentDescription = "Filtrer")
-                }
+
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -147,7 +179,7 @@ fun MemberListScreen(
                             .tabIndicatorOffset(tabPositions[selectedTabIndex])
                             .height(3.dp)
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.secondary)
+                            .background(MaterialTheme.colorScheme.onSurface)
                     )
                 }
             ) {
@@ -161,24 +193,6 @@ fun MemberListScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            // Menu déroulant pour le tri
-            var expanded by remember { mutableStateOf(false) }
-            Box {
-                Button(onClick = { expanded = true }) {
-                    Text("Trier par : $sortOption")
-                }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    listOf("Date d'inscription", "Dernier paiement").forEach { option ->
-                        DropdownMenuItem(text = { Text(option) }, onClick = {
-                            sortOption = option
-                            expanded = false
-                        })
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             // Filtrage et tri des membres
             val filteredAndSortedMembers = members
@@ -220,6 +234,7 @@ fun MemberListScreen(
         }
     }
 }
+
 
 @Composable
 fun MemberItem(

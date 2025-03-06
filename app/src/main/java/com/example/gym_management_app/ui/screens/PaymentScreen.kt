@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -61,10 +62,6 @@ fun PaymentScreen(
     val focusRequester = remember { FocusRequester() }
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(primary = Color.Blue),
-        //colorScheme = darkColorScheme(primary = Color.Green)
-    ) {
         Scaffold(
             //centrer le texte
             topBar = {
@@ -126,7 +123,13 @@ fun PaymentScreen(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Montant à payer") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
 
                 if (errorMessage != null) {
@@ -154,5 +157,4 @@ fun PaymentScreen(
                 }
             }
         }
-    }
 }

@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,9 +52,7 @@ fun AddSubscriptionScreen(
     var price by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(primary = Color.Blue),
-    ) {
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -93,7 +92,13 @@ fun AddSubscriptionScreen(
                     onValueChange = { price = it.filter { char -> char.isDigit() } },
                     label = { Text("Prix ($)") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
 
                 // Display error message if validation fails
@@ -136,7 +141,6 @@ fun AddSubscriptionScreen(
                 }
             }
         }
-    }
 }
 
 
