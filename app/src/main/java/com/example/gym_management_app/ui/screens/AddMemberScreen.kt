@@ -4,12 +4,14 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,23 +42,14 @@ fun AddMemberScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(primary = Color.Blue),
-        //colorScheme = darkColorScheme(primary = Color.Green)
-    ) {
         Scaffold(
             //centrer le texte
             topBar = {
                 TopAppBar(
-                    title = { Text("Ajouter un Membre") },
+                    title = { Text("Ajouter un Membre", fontWeight = FontWeight.Bold, color = Color.White)},
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Retour"
-                            )
-                        }
-                    },
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
                         titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
@@ -79,7 +72,13 @@ fun AddMemberScreen(
                     label = { Text("Nom") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -98,6 +97,12 @@ fun AddMemberScreen(
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number, // Clavier numérique
                         imeAction = ImeAction.Done
+                    ),
+                    maxLines = 1,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = Color.White,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = Color.White
                     )
                 )
 
@@ -174,11 +179,10 @@ fun AddMemberScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Ajouter Membre")
+                    Text(text = "Ajouter Membre", color = Color.White)
                 }
             }
         }
-    }
 }
 
 //Fonction qui génère un code aléatoire pour les membres
