@@ -25,6 +25,7 @@ import com.example.gym_management_app.ui.screens.SplashScreen
 import com.example.gym_management_app.ui.screens.MemberListScreen
 import com.example.gym_management_app.ui.screens.PaymentListScreen
 import com.example.gym_management_app.ui.screens.PaymentScreen
+import com.example.gym_management_app.ui.screens.ReportScreen
 import com.example.gym_management_app.ui.screens.SubscriptionListScreen
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.MemberViewModelFactory
@@ -139,7 +140,11 @@ fun Navigation(){
 
         // Écran des rapports (à implémenter ou remplacer par votre composant)
         composable("reportScreen") {
-            //ReportScreen(navController = navController)
+            ReportScreen(
+                navController = navController,
+                memberViewModel = memberViewModel,
+                subscriptionViewModel = subscriptionViewModel,
+                paymentViewModel = paymentViewModel)
         }
     }
 }

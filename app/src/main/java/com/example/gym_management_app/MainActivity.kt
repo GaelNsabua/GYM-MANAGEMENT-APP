@@ -17,6 +17,7 @@ import com.example.gym_management_app.ui.navigation.Navigation
 import com.example.gym_management_app.ui.theme.GYMMANAGEMENTAPPTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
