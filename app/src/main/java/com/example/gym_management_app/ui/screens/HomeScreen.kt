@@ -45,8 +45,8 @@ fun HomeScreen(
     val monthlyRevenue by paymentViewModel.monthlyRevenue.collectAsState()
 
     // Calculer la moyenne d'adhésion en divisant le revenu mensuel par le nombre de membres actifs (si > 0)
-    val averageSubscription = if (activeMembersCount > 0)
-        (monthlyRevenue / activeMembersCount).toInt()
+    val averageSubscription = if (totalMembers > 0)
+        (totalMembers / 30).toDouble()
     else 0.0
 
     Scaffold(
