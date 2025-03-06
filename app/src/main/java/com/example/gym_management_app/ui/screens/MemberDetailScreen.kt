@@ -113,8 +113,9 @@ fun MemberDetailScreen(
                 subscription?.let { s ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Abonnement: ${s.type}", style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(text = "Description", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(text = "${s.description}", style = MaterialTheme.typography.bodyLarge)
                 }
             } ?: run {
