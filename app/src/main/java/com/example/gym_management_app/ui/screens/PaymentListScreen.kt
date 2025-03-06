@@ -1,5 +1,6 @@
 package com.example.gym_management_app.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentListScreen(
@@ -106,7 +108,6 @@ fun PaymentItem(
     memberName: String, // Nouveau paramètre pour le nom du membre
     onDelete: () -> Unit
 ) {
-    // Vérifie si le paiement est affiché dans une Card
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -114,16 +115,23 @@ fun PaymentItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         // Box permet de superposer le contenu principal et le bouton de suppression
-        Box {
+        Box(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Affiche le montant du paiement
-                Text(text = "Montant: ${payment.amount} $", style = MaterialTheme.typography.bodyLarge)
-                // Affiche la date du paiement au format lisible
-                Text(text = "Date: ${formatDates(payment.date)}", style = MaterialTheme.typography.bodyMedium)
-                // Affiche le nom du membre associé au paiement (plutôt que l'ID)
-                Text(text = "Membre: $memberName", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "Montant: ${payment.amount} $",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = "Date: ${formatDates(payment.date)}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Membre: $memberName",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
-            // Bouton de suppression positionné en haut à droite de la Card
+            // Le bouton est aligné en haut à droite dans le Box qui occupe toute la largeur
             IconButton(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd)
@@ -136,6 +144,7 @@ fun PaymentItem(
         }
     }
 }
+
 
 /**
  * Convertit un timestamp (Long) en une chaîne de caractères au format "yyyy-MM-dd".

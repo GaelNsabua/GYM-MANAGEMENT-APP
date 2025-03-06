@@ -42,147 +42,159 @@ fun AddMemberScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-        Scaffold(
-            //centrer le texte
-            topBar = {
-                TopAppBar(
-                    title = { Text("Ajouter un Membre", fontWeight = FontWeight.Bold, color = Color.White)},
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
+    Scaffold(
+        //centrer le texte
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Ajouter un Membre",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
-                )
-            },
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .padding(paddingValues)
-            ) {
-
-                // Champ Nom
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nom") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedLabelColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Champ Contact
-                OutlinedTextField(
-                    value = contact,
-                    onValueChange = {
-                        if (it.all { char -> char.isDigit() }) { // Vérifie que tous les caractères sont des chiffres
-                            contact = it
-                        }
-                    },
-                    label = { Text("Contact") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number, // Clavier numérique
-                        imeAction = ImeAction.Done
-                    ),
-                    maxLines = 1,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedLabelColor = Color.White,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-                        focusedBorderColor = Color.White
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Sélection d'un abonnement
-                var expanded by remember { mutableStateOf(false) }
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = { expanded = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = selectedSubscription?.type ?: "Sélectionner un abonnement")
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Retour"
+                        )
                     }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        subscriptions.forEach { subscription ->
-                            DropdownMenuItem(
-                                text = { Text(subscription.type) },
-                                onClick = {
-                                    selectedSubscription = subscription
-                                    expanded = false
-                                }
-                            )
-                        }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
+                )
+            )
+        }
+
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(paddingValues)
+        ) {
+
+            // Champ Nom
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nom") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 1,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                    focusedBorderColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Champ Contact
+            OutlinedTextField(
+                value = contact,
+                onValueChange = {
+                    if (it.all { char -> char.isDigit() }) { // Vérifie que tous les caractères sont des chiffres
+                        contact = it
                     }
-                }
+                },
+                label = { Text("Contact") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number, // Clavier numérique
+                    imeAction = ImeAction.Done
+                ),
+                maxLines = 1,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                    focusedBorderColor = Color.White
+                )
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                // Affichage des erreurs avec un Snackbar
-                errorMessage?.let { message ->
-                    LaunchedEffect(snackbarHostState) {
-                        snackbarHostState.showSnackbar(message)
-                    }
-                }
+            // Sélection d'un abonnement
+            var expanded by remember { mutableStateOf(false) }
 
-                SnackbarHost(hostState = snackbarHostState)
-
-                // Bouton Ajouter
-                Button(
-                    onClick = {
-                        val startMillis = System.currentTimeMillis() // Date actuelle
-                        val endMillis = startMillis + (7L * 24L * 60L * 60L * 1000L) // +30 jours
-
-                        if (name.isBlank()) {
-                            errorMessage = "Le nom est obligatoire"
-                        } else if (contact.isBlank()) {
-                            errorMessage = "Le contact est obligatoire"
-                        } else if (selectedSubscription == null) {
-                            errorMessage = "Veuillez sélectionner un abonnement"
-                        } else {
-                            // Si non, créer et insérer le nouveau membre
-                            val newMember = Member(
-                                name = name,
-                                contact = contact,
-                                code = generateRandomCode(),
-                                subscriptionId = selectedSubscription!!.id,
-                                registrationDate = System.currentTimeMillis(),
-                                startDate = startMillis,
-                                endDate = endMillis,
-                                isActive = true
-                            )
-                            //Reinitialisation des champs
-                            name = ""
-                            contact = ""
-                            selectedSubscription = null
-                            //Insertion du nouveau membre
-                            memberViewModel.addMember(newMember)
-                            Toast.makeText(context, "Membre ajouté avec succès", Toast.LENGTH_SHORT)
-                                .show()
-                            navController.popBackStack()
-                        }
-                    },
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(
+                    onClick = { expanded = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Ajouter Membre", color = Color.White)
+                    Text(text = selectedSubscription?.type ?: "Sélectionner un abonnement")
+                }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    subscriptions.forEach { subscription ->
+                        DropdownMenuItem(
+                            text = { Text(subscription.type) },
+                            onClick = {
+                                selectedSubscription = subscription
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Affichage des erreurs avec un Snackbar
+            errorMessage?.let { message ->
+                LaunchedEffect(snackbarHostState) {
+                    snackbarHostState.showSnackbar(message)
+                }
+            }
+
+            SnackbarHost(hostState = snackbarHostState)
+
+            // Bouton Ajouter
+            Button(
+                onClick = {
+                    val startMillis = System.currentTimeMillis() // Date actuelle
+                    val endMillis = startMillis + (7L * 24L * 60L * 60L * 1000L) // +30 jours
+
+                    if (name.isBlank()) {
+                        errorMessage = "Le nom est obligatoire"
+                    } else if (contact.isBlank()) {
+                        errorMessage = "Le contact est obligatoire"
+                    } else if (selectedSubscription == null) {
+                        errorMessage = "Veuillez sélectionner un abonnement"
+                    } else {
+                        // Si non, créer et insérer le nouveau membre
+                        val newMember = Member(
+                            name = name,
+                            contact = contact,
+                            code = generateRandomCode(),
+                            subscriptionId = selectedSubscription!!.id,
+                            registrationDate = System.currentTimeMillis(),
+                            startDate = startMillis,
+                            endDate = endMillis,
+                            isActive = true
+                        )
+                        //Reinitialisation des champs
+                        name = ""
+                        contact = ""
+                        selectedSubscription = null
+                        //Insertion du nouveau membre
+                        memberViewModel.addMember(newMember)
+                        Toast.makeText(context, "Membre ajouté avec succès", Toast.LENGTH_SHORT)
+                            .show()
+                        navController.popBackStack()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Ajouter Membre", color = Color.White)
+            }
         }
+    }
 }
 
 //Fonction qui génère un code aléatoire pour les membres

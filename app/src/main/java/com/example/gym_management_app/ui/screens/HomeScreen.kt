@@ -84,14 +84,14 @@ fun HomeScreen(
                 StatisticCard(
                     title = "Total Membres",
                     value = totalMembers.toString(),
-                    icon = R.drawable.ic_launcher_foreground,
+                    icon = R.drawable.people,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StatisticCard(
                     title = "Abonnements Actifs",
                     value = activeMembersCount.toString(),
-                    icon = R.drawable.people,
+                    icon = R.drawable.liste,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -110,7 +110,7 @@ fun HomeScreen(
                 StatisticCard(
                     title = "Revenus Mensuels",
                     value = "$monthlyRevenue $",
-                    icon = R.drawable.ic_launcher_foreground,
+                    icon = R.drawable.moneys,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -119,7 +119,7 @@ fun HomeScreen(
 
                 title = "Moyenne Adhésion",
                 value = "$averageSubscription %",
-                icon = R.drawable.moneys,
+                icon = R.drawable.reports,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -167,7 +167,7 @@ fun StatisticCard(
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold
             )
             Text(
