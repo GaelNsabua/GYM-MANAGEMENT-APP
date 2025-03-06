@@ -34,6 +34,10 @@ interface MemberDao {
     @Query("SELECT * FROM members WHERE subscriptionId = :subscriptionId LIMIT 1")
     suspend fun getMemberBySubscriptionId(subscriptionId: Int): Member?
 
+    //Retourne tous les membres inactifs
+    @Query("SELECT COUNT(*) FROM members WHERE endDate <= :currentTime")
+    suspend fun getInactiveMembersCount(currentTime: Long = System.currentTimeMillis()): Int
+
     // Rechercher un abonnement par son ID
     @Query("SELECT * FROM members WHERE id = :id")
     suspend fun getMemberById(id: Int): Member?
@@ -42,9 +46,11 @@ interface MemberDao {
     @Update
     suspend fun updateMember(member: Member)
 
+    //Retourne le nombre des membres inscrits
     @Query("SELECT COUNT(*) FROM members")
     suspend fun getTotalMembersCount(): Int
 
+    //Retourne le nombre des membres actifs
     @Query("SELECT COUNT(*) FROM members WHERE isActive = 1")
     suspend fun getActiveMembersCount(): Int
 }

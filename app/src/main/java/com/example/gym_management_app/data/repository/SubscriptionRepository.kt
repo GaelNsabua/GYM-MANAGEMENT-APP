@@ -25,9 +25,6 @@ class SubscriptionRepository(private val subscriptionDao: SubscriptionDao) {
         return subscriptionDao.getSubscriptionById(id)
     }
 
-    suspend fun getExpiredSubscriptionsCount(): Int =
-        subscriptionDao.getExpiredSubscriptionsCount()
-
     //Met à jour la date de fin d'un abonnement
     suspend fun updateSubscription(subscription: Subscription) {
         subscriptionDao.updateSubscription(subscription)

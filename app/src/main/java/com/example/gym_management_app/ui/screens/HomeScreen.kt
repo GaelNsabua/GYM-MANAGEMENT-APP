@@ -41,7 +41,7 @@ fun HomeScreen(
     // Observer les statistiques depuis les ViewModels en temps réel
     val totalMembers by memberViewModel.totalMembers.collectAsState()
     val activeMembersCount by memberViewModel.activeMembers.collectAsState()
-    val expiredSubscriptionsCount by subscriptionViewModel.expiredSubscriptions.collectAsState()
+    val inactiveMembersCount by memberViewModel.inactiveMembers.collectAsState()
     val monthlyRevenue by paymentViewModel.monthlyRevenue.collectAsState()
 
     // Calculer la moyenne d'adhésion en divisant le revenu mensuel par le nombre de membres actifs (si > 0)
@@ -83,7 +83,7 @@ fun HomeScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StatisticCard(
-                    title = "Membres Actifs",
+                    title = "Abonnements Actifs",
                     value = activeMembersCount.toString(),
                     icon = R.drawable.people,
                     modifier = Modifier.weight(1f)
@@ -95,8 +95,8 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatisticCard(
-                    title = "Abonnements Expirés",
-                    value = expiredSubscriptionsCount.toString(),
+                    title = "Membres inactifs",
+                    value = inactiveMembersCount.toString(),
                     icon = R.drawable.warning,
                     modifier = Modifier.weight(1f)
                 )

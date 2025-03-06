@@ -48,6 +48,7 @@ fun AddSubscriptionScreen(
 
     // Mutable states for user inputs
     var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -87,6 +88,16 @@ fun AddSubscriptionScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description de l'abonnement") },
+                    singleLine = false,
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                )
+
                 // Input field for subscription price
                 OutlinedTextField(
                     value = price,
@@ -105,22 +116,25 @@ fun AddSubscriptionScreen(
                 Button(
                     onClick = {
                         val priceValue = price.toIntOrNull()
-                        val startMillis = System.currentTimeMillis() // Date actuelle
-                        val endMillis = startMillis + (7L * 24L * 60L * 60L * 1000L) // +30 jours
-
                         // Validation checks
                         if (name.isBlank()) {
                             errorMessage = "Le nom de l'abonnement ne peut pas être vide."
                         } else if (priceValue == null || priceValue <= 0) {
                             errorMessage = "Le prix doit être un nombre positif."
+                        } else if (description.isBlank()) {
+                        errorMessage = "La description de l'abonnement ne peut pas être vide."
                         } else {
                             // Create and add a new subscription
                             val subscription = Subscription(
                                 type = name,
+                                description = description,
                                 price = priceValue.toDouble(),
-                                startDate = startMillis,
-                                endDate = endMillis
                             )
+                            //Reinitialisation des champs
+                            name = ""
+                            description = ""
+                            price = ""
+                            //Insertion du nouvel abonnnement
                             subscriptionViewModel.addSubscription(subscription)
 
                             // Show confirmation message
