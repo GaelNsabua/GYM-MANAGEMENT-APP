@@ -1,5 +1,6 @@
 package com.example.gym_management_app.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +27,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionListScreen(
@@ -40,6 +42,11 @@ fun SubscriptionListScreen(
             topBar = {
                 TopAppBar(
                     title = { Text("Liste des abonnements", fontWeight = FontWeight.Bold, color = Color.White) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = Color.White

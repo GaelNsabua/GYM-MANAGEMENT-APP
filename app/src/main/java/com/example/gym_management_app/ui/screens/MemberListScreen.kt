@@ -97,6 +97,11 @@ fun MemberListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Liste des membres", fontWeight = FontWeight.Bold, color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
