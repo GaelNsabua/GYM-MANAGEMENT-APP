@@ -26,17 +26,15 @@ interface SubscriptionDao {
     suspend fun delete(subscription: Subscription)
 
     // Récupère tous les abonnements
-    @Query("SELECT * FROM subscriptions ORDER BY endDate DESC")
+    @Query("SELECT * FROM subscriptions ORDER BY price DESC")
     fun getAllSubscriptions(): Flow<List<Subscription>>
 
     // Rechercher un abonnement par son ID
     @Query("SELECT * FROM subscriptions WHERE id = :id")
     suspend fun getSubscriptionById(id: Int): Subscription?
 
-    //Mettre à jour la date de fin de l'abonnement
+    //Mettre à jour un abonnement
     @Update
     suspend fun updateSubscription(subscription: Subscription)
 
-    @Query("SELECT COUNT(*) FROM subscriptions WHERE endDate <= :currentTime")
-    suspend fun getExpiredSubscriptionsCount(currentTime: Long = System.currentTimeMillis()): Int
 }

@@ -41,18 +41,24 @@ fun HomeScreen(
     // Observer les statistiques depuis les ViewModels en temps réel
     val totalMembers by memberViewModel.totalMembers.collectAsState()
     val activeMembersCount by memberViewModel.activeMembers.collectAsState()
-    val expiredSubscriptionsCount by subscriptionViewModel.expiredSubscriptions.collectAsState()
+    val inactiveMembersCount by memberViewModel.inactiveMembers.collectAsState()
     val monthlyRevenue by paymentViewModel.monthlyRevenue.collectAsState()
 
-    // Calculer la moyenne d'adhésion en divisant le revenu mensuel par le nombre de membres actifs (si > 0)
-    val averageSubscription = if (activeMembersCount > 0)
-        (monthlyRevenue / activeMembersCount).toInt()
-    else 0.0
+    // Calculer la moyenne d'adhésion en divisant les membres actifs par le nombre des jours d'un mois (si > 0)
+    val averageSubscription = if (totalMembers > 0)
+        String.format("%.2f", (activeMembersCount.toDouble() / 30.00) * 100)
+    else "0"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tableau de bord", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = {
+                    Text(
+                        "Tableau de bord",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
@@ -83,7 +89,7 @@ fun HomeScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 StatisticCard(
-                    title = "Membres Actifs",
+                    title = "Abonnements Actifs",
                     value = activeMembersCount.toString(),
                     icon = R.drawable.people,
                     modifier = Modifier.weight(1f)
@@ -95,8 +101,8 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatisticCard(
-                    title = "Abonnements Expirés",
-                    value = expiredSubscriptionsCount.toString(),
+                    title = "Membres inactifs",
+                    value = inactiveMembersCount.toString(),
                     icon = R.drawable.warning,
                     modifier = Modifier.weight(1f)
                 )
@@ -150,17 +156,25 @@ fun StatisticCard(
         ) {
             Icon(
 
-            painter = painterResource(id = icon),
+                painter = painterResource(id = icon),
 
-            contentDescription = title,
+                contentDescription = title,
 
-            tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary,
 
-            modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(32.dp)
 
-        )
-            Text(text = title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-            Text(text = value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

@@ -50,8 +50,6 @@ fun AddMemberScreen(
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
-                        }
-                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary, // Couleur de fond
                         titleContentColor = MaterialTheme.colorScheme.onPrimary // Couleur du texte
@@ -147,6 +145,9 @@ fun AddMemberScreen(
                 // Bouton Ajouter
                 Button(
                     onClick = {
+                        val startMillis = System.currentTimeMillis() // Date actuelle
+                        val endMillis = startMillis + (7L * 24L * 60L * 60L * 1000L) // +30 jours
+
                         if (name.isBlank()) {
                             errorMessage = "Le nom est obligatoire"
                         } else if (contact.isBlank()) {
@@ -154,25 +155,26 @@ fun AddMemberScreen(
                         } else if (selectedSubscription == null) {
                             errorMessage = "Veuillez sélectionner un abonnement"
                         } else {
-                            // Vérifier si un membre avec ce subscriptionId existe déjà
-                            coroutineScope.launch {
-                                val existingMember = memberViewModel.getMemberBySubscriptionId(selectedSubscription!!.id)
-                                if (existingMember != null) {
-                                    errorMessage = "Un membre est déjà associé à cet abonnement."
-                                } else {
-                                    // Si non, créer et insérer le nouveau membre
-                                    val newMember = Member(
-                                        name = name,
-                                        contact = contact,
-                                        subscriptionId = selectedSubscription!!.id,
-                                        registrationDate = System.currentTimeMillis(),
-                                        isActive = true
-                                    )
-                                    memberViewModel.addMember(newMember)
-                                    Toast.makeText(context, "Membre ajouté avec succès", Toast.LENGTH_SHORT).show()
-                                    navController.popBackStack()
-                                }
-                            }
+                            // Si non, créer et insérer le nouveau membre
+                            val newMember = Member(
+                                name = name,
+                                contact = contact,
+                                code = generateRandomCode(),
+                                subscriptionId = selectedSubscription!!.id,
+                                registrationDate = System.currentTimeMillis(),
+                                startDate = startMillis,
+                                endDate = endMillis,
+                                isActive = true
+                            )
+                            //Reinitialisation des champs
+                            name = ""
+                            contact = ""
+                            selectedSubscription = null
+                            //Insertion du nouveau membre
+                            memberViewModel.addMember(newMember)
+                            Toast.makeText(context, "Membre ajouté avec succès", Toast.LENGTH_SHORT)
+                                .show()
+                            navController.popBackStack()
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -181,6 +183,16 @@ fun AddMemberScreen(
                 }
             }
         }
+}
+
+//Fonction qui génère un code aléatoire pour les membres
+fun generateRandomCode(length: Int = 6): String {
+    // Définition de l'ensemble des caractères autorisés (ici : lettres majuscules et chiffres)
+    val charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    // Génère une chaîne de caractères en sélectionnant aléatoirement 'length' caractères dans le charset
+    return (1..length)
+        .map { charset.random() }
+        .joinToString("")
 }
 
 

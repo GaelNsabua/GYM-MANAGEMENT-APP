@@ -13,8 +13,7 @@ import androidx.room.PrimaryKey
 data class Subscription(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val type: String, // Ex : "Mensuel", "Annuel"
-    val startDate: Long, // Date de début en millisecondes
-    val endDate: Long, // Date de fin en millisecondes
+    val description: String,
     val price: Double //Le prix de l'abonnement
 )
 

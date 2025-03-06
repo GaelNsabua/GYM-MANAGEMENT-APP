@@ -86,19 +86,12 @@ fun SubscriptionItem(
     subscription: Subscription,
     onDelete: () -> Unit
 ) {
-    // Vérifie si l'abonnement est expiré
-    val isExpired = System.currentTimeMillis() > subscription.endDate
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isExpired) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (isExpired) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant
-        )
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -121,18 +114,16 @@ fun SubscriptionItem(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                // Période de validité
+                // Description de l'abonnement
                 Text(
-                    text = "Période: ${formatDate(subscription.startDate)} - ${formatDate(subscription.endDate)}",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "Description",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // État de l'abonnement (expiré ou actif)
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    text = if (isExpired) "Expiré" else "Actif",
-                    color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    text = subscription.description,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -151,10 +142,4 @@ fun SubscriptionItem(
             }
         }
     }
-}
-
-// Fonction utilitaire pour formater un timestamp en date lisible
-fun formatDate(timestamp: Long): String {
-    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return formatter.format(Date(timestamp))
 }
