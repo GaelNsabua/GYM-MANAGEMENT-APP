@@ -34,6 +34,9 @@ class MemberRepository(private val memberDao: MemberDao) {
         return memberDao.getMemberById(id)
     }
 
+    suspend fun getInactiveMembersCount(): Int =
+        memberDao.getInactiveMembersCount()
+
     // Fonction pour vérifier l'unicité de subscriptionId
     suspend fun getMemberBySubscriptionId(subscriptionId: Int): Member? {
         return memberDao.getMemberBySubscriptionId(subscriptionId)

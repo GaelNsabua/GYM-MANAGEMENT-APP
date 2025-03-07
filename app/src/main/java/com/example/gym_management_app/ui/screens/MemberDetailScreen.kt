@@ -95,23 +95,28 @@ fun MemberDetailScreen(
             // Affichage des informations du membre
             member?.let { m ->
                 Text(text = "Nom: ${m.name}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Code: ${m.code}", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Contact: ${m.contact}", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Date inscription: ${formatDate(m.registrationDate)}", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "Validité: ${formatDate(m.startDate)} - ${formatDate(m.endDate)}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                // Indique si l'abonnement est actif ou expiré
+                if (System.currentTimeMillis() > m.endDate) {
+                    Text(text = "Statut: Inactif", color = Color.Red, style = MaterialTheme.typography.bodyLarge)
+                } else {
+                    Text(text = "Statut: Actif", color = Color.Green, style = MaterialTheme.typography.bodyLarge)
+                }
 
                 // Si l'abonnement a été chargé, l'afficher
                 subscription?.let { s ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Abonnement: ${s.type}", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = "Validité: ${formatDate(s.startDate)} - ${formatDate(s.endDate)}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    // Indique si l'abonnement est actif ou expiré
-                    if (System.currentTimeMillis() > s.endDate) {
-                        Text(text = "Statut: Inactif", color = Color.Red, style = MaterialTheme.typography.bodyLarge)
-                    } else {
-                        Text(text = "Statut: Actif", color = Color.Green, style = MaterialTheme.typography.bodyLarge)
-                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Description", style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "${s.description}", style = MaterialTheme.typography.bodyLarge)
                 }
             } ?: run {
                 // Affiche un message si le membre n'est pas trouvé

@@ -72,13 +72,6 @@ class PaymentViewModel(
         return repository.getPaymentsForMember(memberId)
     }
 
-    fun addPayment(payment: Payment) {
-        viewModelScope.launch {
-            repository.insertPayment(payment)
-            loadMonthlyRevenue() // Recharger le revenu après ajout d'un paiement
-        }
-    }
-
     fun deletePayment(payment: Payment) {
         viewModelScope.launch {
             repository.deletePayment(payment)
@@ -86,23 +79,30 @@ class PaymentViewModel(
         }
     }
 
-    // La fonction addPaymentAndUpdateStatus reste inchangée
     fun addPaymentAndUpdateStatus(payment: Payment) {
         viewModelScope.launch {
+            // Insère le paiement dans la base
             repository.insertPayment(payment)
+
+            // Récupère le membre associé au paiement
             val member = memberRepository.getMemberById(payment.memberId)
             if (member != null) {
-                val subscription = subscriptionRepository.getSubscriptionById(member.subscriptionId)
-                if (subscription != null) {
-                    val newEndDate = subscription.endDate + 30L * 24L * 60L * 60L * 1000L
-                    val updatedSubscription = subscription.copy(endDate = newEndDate)
-                    subscriptionRepository.updateSubscription(updatedSubscription)
-                    val updatedMember = member.copy(isActive = System.currentTimeMillis() < newEndDate)
-                    memberRepository.updateMember(updatedMember)
-                }
+                // Calculer la nouvelle date de fin de l'abonnement en ajoutant 30 jours à l'ancienne date de fin
+                val newEndDate = member.endDate + 30L * 24L * 60L * 60L * 1000L
+
+                // Détermine si le membre doit être actif : actif si la date actuelle est inférieure à la nouvelle date
+                val isActiveUpdated = System.currentTimeMillis() < newEndDate
+
+                // Créer une copie mise à jour du membre avec la nouvelle date et le nouveau statut
+                val updatedMember = member.copy(endDate = newEndDate, isActive = isActiveUpdated)
+
+                // Met à jour le membre dans la base de données
+                memberRepository.updateMember(updatedMember)
             }
-            loadMonthlyRevenue() // Mise à jour des revenus mensuels
+            // Met à jour le revenu mensuel après l'ajout du paiement
+            loadMonthlyRevenue()
         }
     }
+
 }
 

@@ -25,6 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.graphics.Paint
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,6 +59,11 @@ fun ReportScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Rapports", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -132,18 +141,18 @@ fun generatePdfReport(
     val totalMembers =  memberViewModel.totalMembers.value
     val activeMembers = memberViewModel.activeMembers.value
     val monthlyRevenue = paymentViewModel.monthlyRevenue.value
-    val expiredSubs = subscriptionViewModel.expiredSubscriptions.value
+    val inactiveMember = memberViewModel.inactiveMembers.value
 
     paint.textSize = 12f
     canvas.drawText("Total Membres : $totalMembers", 10f, 50f, paint)
-    canvas.drawText("Membres Actifs : $activeMembers", 10f, 70f, paint)
-    canvas.drawText("Abonnements Expirés : $expiredSubs", 10f, 90f, paint)
+    canvas.drawText("Abonnements Actifs : $activeMembers", 10f, 70f, paint)
+    canvas.drawText("Membres inactifs : $inactiveMember", 10f, 90f, paint)
     canvas.drawText("Revenus Mensuels : $monthlyRevenue Fc", 10f, 110f, paint)
 
     pdfDocument.finishPage(page)
 
     // Sauvegarder le PDF dans le cache externe
-    val file = File(context.externalCacheDir, "report.pdf")
+    val file = File(context.externalCacheDir, "report${generateRandomCode()}.pdf")
     try {
         pdfDocument.writeTo(FileOutputStream(file))
     } catch (e: Exception) {

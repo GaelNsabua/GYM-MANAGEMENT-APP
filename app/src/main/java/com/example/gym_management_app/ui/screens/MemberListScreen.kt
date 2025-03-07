@@ -70,6 +70,9 @@ import com.example.gym_management_app.data.models.Subscription
 import com.example.gym_management_app.ui.components.BottomNavBar
 import com.example.gym_management_app.viewmodel.MemberViewModel
 import com.example.gym_management_app.viewmodel.SubscriptionViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +97,11 @@ fun MemberListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Liste des membres", fontWeight = FontWeight.Bold, color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
@@ -161,7 +169,6 @@ fun MemberListScreen(
                         focusedBorderColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -197,16 +204,13 @@ fun MemberListScreen(
             // Filtrage et tri des membres
             val filteredAndSortedMembers = members
                 .filter { member ->
-                    val subscription = subscriptionViewModel.getSubscriptionById(member.subscriptionId)
-                        .collectAsState(initial = null).value
-
                     val matchesSearch = searchQuery.isBlank() ||
                             member.name.contains(searchQuery, ignoreCase = true) ||
-                            (subscription?.type?.contains(searchQuery, ignoreCase = true) ?: false)
+                            (member?.contact?.contains(searchQuery, ignoreCase = true) ?: false)
 
                     val matchesFilter = when (filterStatus) {
-                        "Actifs" -> subscription?.endDate?.let { it > System.currentTimeMillis() } == true
-                        "Expirés" -> subscription?.endDate?.let { it <= System.currentTimeMillis() } == true
+                        "Actifs" -> member?.endDate?.let { it > System.currentTimeMillis() } == true
+                        "Expirés" -> member?.endDate?.let { it <= System.currentTimeMillis() } == true
                         else -> true
                     }
 
@@ -259,16 +263,20 @@ fun MemberItem(
         Column {
             Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
             Text(text = "Contact: ${member.contact}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Abonnement: ${subscription?.type ?: "Chargement..."}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Date inscription: ${formatDate(member.registrationDate)}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Abonnement: ${subscription?.type ?: "Chargement..."}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Date inscription: ${formatDate(member.registrationDate)}",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
-            if (subscription != null) {
-                Text(
-                    text = if (System.currentTimeMillis() > subscription!!.endDate) "Inactif" else "Actif",
-                    color = if (System.currentTimeMillis() > subscription!!.endDate) Color.Red else Color.Green,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            Text(
+                text = if (System.currentTimeMillis() > member!!.endDate) "Inactif" else "Actif",
+                color = if (System.currentTimeMillis() > member!!.endDate) Color.Red else Color.Green,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         IconButton(
@@ -278,4 +286,10 @@ fun MemberItem(
             Icon(Icons.Default.Delete, contentDescription = "Supprimer le membre")
         }
     }
+}
+
+// Fonction utilitaire pour formater un timestamp en date lisible
+fun formatDate(timestamp: Long): String {
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return formatter.format(Date(timestamp))
 }

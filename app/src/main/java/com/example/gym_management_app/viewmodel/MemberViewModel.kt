@@ -33,6 +33,9 @@ class MemberViewModel(private val repository: MemberRepository) : ViewModel() {
     private val _activeMembers = MutableStateFlow(0)
     val activeMembers: StateFlow<Int> = _activeMembers
 
+    private val _inactiveMembers = MutableStateFlow(0)
+    val inactiveMembers: StateFlow<Int> = _inactiveMembers
+
     init {
         loadMembers()
         loadMemberStatistics()
@@ -50,6 +53,7 @@ class MemberViewModel(private val repository: MemberRepository) : ViewModel() {
         viewModelScope.launch {
             _totalMembers.value = repository.getTotalMembersCount()
             _activeMembers.value = repository.getActiveMembersCount()
+            _inactiveMembers.value = repository.getInactiveMembersCount()
         }
     }
 
