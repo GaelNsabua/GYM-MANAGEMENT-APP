@@ -1,8 +1,11 @@
 package com.example.gym_management_app.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.foundation.layout.Arrangement
@@ -24,10 +27,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -60,6 +65,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Checkbox
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -86,6 +92,8 @@ fun MemberListScreen(
     var searchQuery by remember { mutableStateOf("") }
     var filterStatus by remember { mutableStateOf("Tous") }
     var sortOption by remember { mutableStateOf("Date d'inscription") }
+    val selectedMembers = remember { mutableStateOf(mutableSetOf<Member>()) } // Pour stocker les membres sélectionnés
+    var isSelectionMode by remember { mutableStateOf(false) } // Mode de sélection
 
     val selectedTabIndex = when (filterStatus) {
         "Actifs" -> 1
@@ -96,10 +104,55 @@ fun MemberListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Liste des membres", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = {
+                    if (isSelectionMode) {
+                        Text("${selectedMembers.value.size} sélectionné(s)", fontWeight = FontWeight.Bold, color = Color.White)
+                    } else {
+                        Text("Liste des membres", fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
+                    if (isSelectionMode) {
+                        IconButton(onClick = {
+                            selectedMembers.value.clear()
+                            isSelectionMode = false
+                        }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Annuler", tint = Color.White)
+                        }
+                    } else {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Retour", tint = Color.White)
+                        }
+                    }
+                },
+                actions = {
+                    if (isSelectionMode) {
+                        // Bouton de suppression dans l'AppBar
+                        IconButton(
+                            onClick = {
+                                selectedMembers.value.forEach { member ->
+                                    memberViewModel.deleteMember(member)
+                                }
+                                selectedMembers.value.clear()
+                                isSelectionMode = false
+                            }
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Supprimer", tint = Color.White)
+                        }
+
+                        // Bouton de modification (uniquement si un seul élément est sélectionné)
+                        if (selectedMembers.value.size == 1) {
+                            IconButton(
+                                onClick = {
+                                    val member = selectedMembers.value.first()
+                                    navController.navigate("editMember/${member.id}")
+                                    selectedMembers.value.clear()
+                                    isSelectionMode = false
+                                }
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Modifier", tint = Color.White)
+                            }
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -109,10 +162,14 @@ fun MemberListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("addMember") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary) {
-                Icon(Icons.Default.Add, contentDescription = "Ajouter un membre", tint = Color.White)
+            if (!isSelectionMode) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("addMember") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Ajouter un membre", tint = Color.White)
+                }
             }
         },
         bottomBar = { BottomNavBar(navController, navController.currentDestination?.route) }
@@ -132,14 +189,11 @@ fun MemberListScreen(
             ) {
                 var expanded by remember { mutableStateOf(false) }
                 Box {
-                    IconButton(
-                        onClick = { expanded = true },
-                        // Taille de l'icône pour un bon visuel
-                    ) {
+                    IconButton(onClick = { expanded = true }) {
                         Icon(
                             painter = painterResource(id = R.drawable.filter),
                             contentDescription = "Filtrer",
-                            modifier = Modifier.size(40.dp) // Taille de l'icône
+                            modifier = Modifier.size(40.dp)
                         )
                     }
 
@@ -153,15 +207,14 @@ fun MemberListScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp)) // Ajoute un espace entre la barre de recherche et l'icône
+                Spacer(modifier = Modifier.width(8.dp))
 
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     label = { Text("Rechercher un membre") },
                     trailingIcon = { Icon(Icons.Default.Search, contentDescription = "Recherche") },
-                    modifier = Modifier
-                        .weight(1f),
+                    modifier = Modifier.weight(1f),
                     maxLines = 1,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedLabelColor = MaterialTheme.colorScheme.onSurface,
@@ -175,11 +228,7 @@ fun MemberListScreen(
 
             // Onglets pour filtrer les membres
             TabRow(
-                selectedTabIndex = when (filterStatus) {
-                    "Actifs" -> 1
-                    "Expirés" -> 2
-                    else -> 0
-                },
+                selectedTabIndex = selectedTabIndex,
                 indicator = { tabPositions ->
                     Box(
                         Modifier
@@ -229,8 +278,18 @@ fun MemberListScreen(
                     MemberItem(
                         member = member,
                         subscriptionViewModel = subscriptionViewModel,
-                        onDelete = { memberViewModel.deleteMember(member) },
-                        onClick = { navController.navigate("memberDetail/${member.id}") }
+                        isSelected = selectedMembers.value.contains(member),
+                        onSelect = {
+                            if (selectedMembers.value.contains(member)) {
+                                selectedMembers.value.remove(member)
+                                if (selectedMembers.value.isEmpty()) isSelectionMode = false
+                            } else {
+                                selectedMembers.value.add(member)
+                                isSelectionMode = true
+                            }
+                        },
+                        onClick = { navController.navigate("memberDetail/${member.id}") },
+                        isSelectionMode = isSelectionMode // Passage du mode de sélection
                     )
                     HorizontalDivider() // Séparateur entre les éléments de la liste
                 }
@@ -238,14 +297,15 @@ fun MemberListScreen(
         }
     }
 }
-
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MemberItem(
     member: Member,
     subscriptionViewModel: SubscriptionViewModel,
-    onDelete: () -> Unit,
-    onClick: () -> Unit
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    onClick: () -> Unit,
+    isSelectionMode: Boolean // Ajout du mode de sélection
 ) {
     var subscription by remember { mutableStateOf<Subscription?>(null) }
 
@@ -257,36 +317,61 @@ fun MemberItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { onClick() }
+            .clickable {
+                if (isSelectionMode) {
+                    onSelect() // Sélection au clic si mode sélection actif
+                } else {
+                    onClick() // Navigation vers les détails sinon
+                }
+            }
+            .combinedClickable(
+                onClick = {
+                    if (isSelectionMode) {
+                        onSelect() // Si mode sélection activé, on sélectionne/désélectionne
+                    } else {
+                        onClick() // Sinon, on affiche les détails
+                    }
+                },
+                onLongClick = {
+                    onSelect() // Activation de la sélection sur long clic
+                }
+            )
             .padding(16.dp)
     ) {
-        Column {
-            Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Contact: ${member.contact}", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "Abonnement: ${subscription?.type ?: "Chargement..."}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Date inscription: ${formatDate(member.registrationDate)}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text = if (System.currentTimeMillis() > member!!.endDate) "Inactif" else "Actif",
-                color = if (System.currentTimeMillis() > member!!.endDate) Color.Red else Color.Green,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        IconButton(
-            onClick = onDelete,
-            modifier = Modifier.align(Alignment.TopEnd)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween // Permet de mettre la Checkbox à droite
         ) {
-            Icon(Icons.Default.Delete, contentDescription = "Supprimer le membre")
+            Column(modifier = Modifier.weight(1f)) { // Permet à la colonne de prendre toute la place sauf la checkbox
+                Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Contact: ${member.contact}", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = "Abonnement: ${subscription?.type ?: "Chargement..."}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Date inscription: ${formatDate(member.registrationDate)}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = if (System.currentTimeMillis() > member.endDate) "Inactif" else "Actif",
+                    color = if (System.currentTimeMillis() > member.endDate) Color.Red else Color.Green,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            // Checkbox toujours alignée à droite
+            if (isSelectionMode) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onSelect() }
+                )
+            }
         }
     }
 }
+
 
 // Fonction utilitaire pour formater un timestamp en date lisible
 fun formatDate(timestamp: Long): String {
