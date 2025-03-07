@@ -42,34 +42,25 @@ import com.example.gym_management_app.viewmodel.SubscriptionViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberDetailScreen(
     navController: NavController,
-    memberId: Int,  // ID du membre à afficher
+    memberId: Int,
     memberViewModel: MemberViewModel = viewModel(),
     subscriptionViewModel: SubscriptionViewModel = viewModel(),
     paymentViewModel: PaymentViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
-    // Récupération de la liste des membres depuis le MemberViewModel
     val members by memberViewModel.members.collectAsState()
-    // Recherche du membre dont l'ID correspond
     val member = members.find { it.id == memberId }
-
-    // Récupération de la liste des paiements associés au membre (via son ID)
     val payments by paymentViewModel.getPaymentsForMember(memberId)
         .collectAsState(initial = emptyList())
-
-    // Variable locale pour stocker les informations de l'abonnement
     var subscription by remember { mutableStateOf<Subscription?>(null) }
-    // Charger l'abonnement uniquement lorsque le membre est disponible ou change
+
     LaunchedEffect(key1 = member?.subscriptionId) {
         member?.let {
-            // Appel de la fonction suspendue dans le SubscriptionViewModel
             subscription = subscriptionViewModel.getSubscriptionForMember(it.subscriptionId)
         }
     }
@@ -77,7 +68,7 @@ fun MemberDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Détails du Membre") },
+                title = { Text("Détails du Membre", style = MaterialTheme.typography.headlineSmall) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Retour")
@@ -90,63 +81,100 @@ fun MemberDetailScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
         ) {
-            // Affichage des informations du membre
-            member?.let { m ->
-                Text(text = "Nom: ${m.name}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Code: ${m.code}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Contact: ${m.contact}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Date inscription: ${formatDate(m.registrationDate)}", style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = "Validité: ${formatDate(m.startDate)} - ${formatDate(m.endDate)}",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                // Indique si l'abonnement est actif ou expiré
-                if (System.currentTimeMillis() > m.endDate) {
-                    Text(text = "Statut: Inactif", color = Color.Red, style = MaterialTheme.typography.bodyLarge)
-                } else {
-                    Text(text = "Statut: Actif", color = Color.Green, style = MaterialTheme.typography.bodyLarge)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                item {
+                    member?.let { m ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Text(text = "Informations du Membre", style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                InfoRow(label = "Nom", value = m.name)
+                                InfoRow(label = "Code", value = m.code)
+                                InfoRow(label = "Contact", value = m.contact)
+                                InfoRow(label = "Date inscription", value = formatDate(m.registrationDate))
+                                InfoRow(label = "Validité", value = "${formatDate(m.startDate)} - ${formatDate(m.endDate)}")
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = if (System.currentTimeMillis() > m.endDate) "Statut: Inactif" else "Statut: Actif",
+                                    color = if (System.currentTimeMillis() > m.endDate) Color.Red else Color.Green,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+
+                        subscription?.let { s ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    Text(text = "Abonnement", style = MaterialTheme.typography.titleMedium)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    InfoRow(label = "Type", value = s.type)
+                                    InfoRow(label = "Description", value = s.description)
+                                }
+                            }
+                        }
+                    } ?: run {
+                        Text("Membre introuvable", color = Color.Red, style = MaterialTheme.typography.bodyLarge)
+                    }
                 }
 
-                // Si l'abonnement a été chargé, l'afficher
-                subscription?.let { s ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Abonnement: ${s.type}", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "Description", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "${s.description}", style = MaterialTheme.typography.bodyLarge)
+                item {
+                    Text(
+                        text = "Historique des Paiements",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
                 }
-            } ?: run {
-                // Affiche un message si le membre n'est pas trouvé
-                Text("Membre introuvable", color = Color.Red)
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(text = "Historique des Paiements", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Affichage de la liste des paiements associés à ce membre
-            LazyColumn {
                 items(payments) { payment ->
                     PaymentItem(payment = payment)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
     }
 }
 
-/**
- * Composable pour afficher un élément de paiement.
- */
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+        Text(text = value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
 @Composable
 fun PaymentItem(payment: Payment) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -154,15 +182,12 @@ fun PaymentItem(payment: Payment) {
         ) {
             Column {
                 Text(text = "Montant: ${payment.amount} $", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Date: ${formatsDate(payment.date)}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Date: ${formatsDate(payment.date)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
     }
 }
 
-/**
- * Formate un timestamp (Long) en une date au format "yyyy-MM-dd".
- */
 fun formatsDate(timestamp: Long): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return formatter.format(Date(timestamp))
